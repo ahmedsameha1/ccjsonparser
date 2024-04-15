@@ -25,4 +25,48 @@ func TestApp(t *testing.T) {
 	}, []string{"ccjsonparser", "invalid.json"})
 	assert.NoError(t, err)
 	assert.Equal(t, "This is an invalid JSON", result)
+
+	result, err = app.App(func(name string) ([]byte, error) {
+		if name != "valid.json" {
+			panic("error")
+		}
+		return []byte(`{"key": "value"}`), nil
+	}, []string{"ccjsonparser", "valid.json"})
+	assert.NoError(t, err)
+	assert.Equal(t, "This is a valid JSON", result)
+
+	result, err = app.App(func(name string) ([]byte, error) {
+		if name != "valid.json" {
+			panic("error")
+		}
+		return []byte(`{
+			"key": "value",
+			"key2": "value"
+		  }`), nil
+	}, []string{"ccjsonparser", "valid.json"})
+	assert.NoError(t, err)
+	assert.Equal(t, "This is a valid JSON", result)
+
+	result, err = app.App(func(name string) ([]byte, error) {
+		if name != "invalid.json" {
+			panic("error")
+		}
+		return []byte(`{"key": "value",}`), nil
+	}, []string{"ccjsonparser", "invalid.json"})
+	assert.NoError(t, err)
+	assert.Equal(t, "This is an invalid JSON", result)
+
+	result, err = app.App(func(name string) ([]byte, error) {
+		if name != "invalid.json" {
+			panic("error")
+		}
+		return []byte(`{
+			"key": "value",
+			key2: "value"
+		  }`), nil
+	}, []string{"ccjsonparser", "invalid.json"})
+	assert.NoError(t, err)
+	assert.Equal(t, "This is an invalid JSON", result)
 }
+
+//{(\s*"\S+"\s*:\s*"\S+"\s*,\s*)*(\s*"\S+"\s*:\s*"\S+"\s*){1}}
