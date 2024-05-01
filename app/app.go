@@ -9,11 +9,11 @@ func App(readFile func(name string) ([]byte, error), args []string) (string, err
 	fileContentString := string(fileContentInByteArray)
 	numbers := `-{0,1}\d+\.{0,1}\d+|-{0,1}\d+`
 	inner_brackets := `\[[^][]*\]|{[^}{]*}|\[.*\[.*\].*\]|\{.*\{.*\}.*\}`
-	inner_element := `\s*(null|true|false|` + numbers + `|"[^"\n]*"|` + inner_brackets + `){1}`
+	inner_element := `\s*(null|true|false|` + numbers + `|"([^"\n]*?\\"[^"\n]*?)+"|"[^"\n]*"|` + inner_brackets + `){1}`
 	last_element_in_outer_squrare_brackets := `(` + inner_element + `\s*)`
 	multiple_elments_in_outer_square_brackets := `(` + inner_element + `\s*,\s*)*`
 	outer_square_brackets := `\[\s*(` + multiple_elments_in_outer_square_brackets + last_element_in_outer_squrare_brackets + `{1}){0,1}\]`
-	object_key := `"[^"\n]*"`
+	object_key := `("([^"\n]*?\\"[^"\n]*?)+"|"[^"\n]*")`
 	last_element_in_outer_curly_brackets := `(\s*` + object_key + `\s*:` + inner_element + `\s*)`
 	multiple_elments_in_outer_curly_brackets := `(\s*` + object_key + `\s*:` + inner_element + `\s*,\s*)*`
 	outer_curly_brakets := `{\s*(` + multiple_elments_in_outer_curly_brackets + last_element_in_outer_curly_brackets + `{1}){0,1}}`
