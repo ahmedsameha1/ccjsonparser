@@ -1,5 +1,11 @@
 {
   "\"": "value",
   "key2": "\"",
-  "\" \"": "\" \""
+  "\" \"": "\" \"",
+  "backslash": "\\",
+  "\\": "backslash",
+  "controls": "\b\f\n\r\t",
+  "\b\f\n\r\t": "controls",
+  "slash": "/ & \/",
+  "/ & \/": "slash" 
 }

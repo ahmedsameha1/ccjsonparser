@@ -62,6 +62,12 @@ func TestApp(t *testing.T) {
 			"": "\"",
 			"": "\" \"",
 			"\" \"": "",
+			"backslash": "\\",
+  			"\\": "backslash",
+			"slash": "/ & \/",
+  			"/ & \/": "slash", 
+			"controls": "\b\f\n\r\t",
+    		"\b\f\n\r\t": "controls",
 			"key 3" : "value 3",
 			" key 4" : "value 4 ",
 			"key 5 ": " value 5"
