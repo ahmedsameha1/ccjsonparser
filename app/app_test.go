@@ -209,7 +209,10 @@ func TestApp(t *testing.T) {
 			"key2": false,
 			"key3": null,
 			"key4": "value",
-			"key5": 2.2
+			"key5": 2.2,
+			"key6": 1.234567890E+34,
+			"key7": 0.123456789e-12,
+			"key8": 0.1e1
 		  }`), nil
 	}, []string{"ccjsonparser", "valid.json"})
 	assert.NoError(t, err)
@@ -224,7 +227,13 @@ func TestApp(t *testing.T) {
 			"key2": false,
 			"key3": null,
 			"key4": "value",
-			"key5": 5
+			"key5": 5,
+			"key6": 1e1,
+  			"key7": 1e-1,
+			"key8": 1e00,
+  			"key9": 2e+00,
+  			"key10": 2e-00,
+			"key11": 23456789012E66
 		  }`), nil
 	}, []string{"ccjsonparser", "valid.json"})
 	assert.NoError(t, err)
