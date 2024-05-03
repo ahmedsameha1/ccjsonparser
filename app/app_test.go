@@ -120,6 +120,24 @@ func TestApp(t *testing.T) {
 		if name != "invalid.json" {
 			panic("error")
 		}
+		return []byte(`{"key":"	tab	character	in	string	"}`), nil
+	}, []string{"ccjsonparser", "invalid.json"})
+	assert.NoError(t, err)
+	assert.Equal(t, "This is an invalid JSON", result)
+
+	result, err = app.App(func(name string) ([]byte, error) {
+		if name != "invalid.json" {
+			panic("error")
+		}
+		return []byte(`["tab\   character\   in\  string\  "]`), nil
+	}, []string{"ccjsonparser", "invalid.json"})
+	assert.NoError(t, err)
+	assert.Equal(t, "This is an invalid JSON", result)
+
+	result, err = app.App(func(name string) ([]byte, error) {
+		if name != "invalid.json" {
+			panic("error")
+		}
 		return []byte(`{
 			"key": "value",
 			"key2": "value",
@@ -195,6 +213,28 @@ func TestApp(t *testing.T) {
 			" key 4" : "value 4 ",
 			"key 5 ": " value 5",
 			"gbi": "\"  wief"gbi"
+		  }`), nil
+	}, []string{"ccjsonparser", "invalid.json"})
+	assert.NoError(t, err)
+	assert.Equal(t, "This is an invalid JSON", result)
+
+	result, err = app.App(func(name string) ([]byte, error) {
+		if name != "invalid.json" {
+			panic("error")
+		}
+		return []byte(`{
+			"key": "Illegal backslash escape: \x15"
+		  }`), nil
+	}, []string{"ccjsonparser", "invalid.json"})
+	assert.NoError(t, err)
+	assert.Equal(t, "This is an invalid JSON", result)
+
+	result, err = app.App(func(name string) ([]byte, error) {
+		if name != "invalid.json" {
+			panic("error")
+		}
+		return []byte(`{
+			"Illegal backslash escape: \x15": "value"
 		  }`), nil
 	}, []string{"ccjsonparser", "invalid.json"})
 	assert.NoError(t, err)

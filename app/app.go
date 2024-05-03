@@ -7,7 +7,7 @@ import (
 func App(readFile func(name string) ([]byte, error), args []string) (string, error) {
 	fileContentInByteArray, _ := readFile(args[1])
 	fileContentString := string(fileContentInByteArray)
-	string_keys_values := `"([^"\n]*?\\"[^"\n]*?)+"|"[^"\n]*"`
+	string_keys_values := `"([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*"`
 	string_values := `|` + string_keys_values + `|`
 	numbers := `-?\d+\.?\d+([eE][-+]?)?\d+|-?\d+([eE][-+]?)?\d+|-?\d+\.?\d+|-?\d+`
 	inner_brackets := `\[[^][]*\]|{[^}{]*}|\[.*\[.*\].*\]|\{.*\{.*\}.*\}`
@@ -15,7 +15,7 @@ func App(readFile func(name string) ([]byte, error), args []string) (string, err
 	last_element_in_outer_squrare_brackets := `(` + inner_element + `\s*)`
 	multiple_elments_in_outer_square_brackets := `(` + inner_element + `\s*,\s*)*`
 	outer_square_brackets := `\[\s*(` + multiple_elments_in_outer_square_brackets + last_element_in_outer_squrare_brackets + `{1}){0,1}\]`
-	object_key := `(` + string_keys_values +`)`
+	object_key := `(` + string_keys_values + `)`
 	last_element_in_outer_curly_brackets := `(\s*` + object_key + `\s*:` + inner_element + `\s*)`
 	multiple_elments_in_outer_curly_brackets := `(\s*` + object_key + `\s*:` + inner_element + `\s*,\s*)*`
 	outer_curly_brakets := `{\s*(` + multiple_elments_in_outer_curly_brackets + last_element_in_outer_curly_brackets + `{1}){0,1}}`
