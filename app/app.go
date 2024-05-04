@@ -9,7 +9,7 @@ func App(readFile func(name string) ([]byte, error), args []string) (string, err
 	fileContentString := string(fileContentInByteArray)
 	string_keys_values := `"([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*"`
 	string_values := `|` + string_keys_values + `|`
-	numbers := `-?\d+\.?\d+([eE][-+]?)?\d+|-?\d+([eE][-+]?)?\d+|-?\d+\.?\d+|-?\d+`
+	numbers := `-?\d+\.\d+([eE][-+]?)\d+|-?\d+([eE][-+]?)\d+|-?\d+\.\d+|-?\d+`
 	inner_brackets := `\[[^][]*\]|{[^}{]*}|\[.*\[.*\].*\]|\{.*\{.*\}.*\}`
 	inner_element := `\s*(null|true|false|` + numbers + string_values + inner_brackets + `){1}`
 	last_element_in_outer_squrare_brackets := `(` + inner_element + `\s*)`
