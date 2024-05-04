@@ -169,6 +169,70 @@ func TestParseTheSimplestJsonObject(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "This is an invalid JSON\n", out.String())
 
+	ccjsonparserCommand = exec.Command("./ccjsonparser", "tests/step3/invalid2.json")
+	ccjsonparserCommand.Dir = "./.."
+	out.Reset()
+	ccjsonparserCommand.Stdout = &out
+	err = ccjsonparserCommand.Run()
+	assert.NoError(t, err)
+	assert.Equal(t, "This is an invalid JSON\n", out.String())
+
+	ccjsonparserCommand = exec.Command("./ccjsonparser", "tests/step3/invalid3.json")
+	ccjsonparserCommand.Dir = "./.."
+	out.Reset()
+	ccjsonparserCommand.Stdout = &out
+	err = ccjsonparserCommand.Run()
+	assert.NoError(t, err)
+	assert.Equal(t, "This is an invalid JSON\n", out.String())
+
+	ccjsonparserCommand = exec.Command("./ccjsonparser", "tests/step3/invalid4.json")
+	ccjsonparserCommand.Dir = "./.."
+	out.Reset()
+	ccjsonparserCommand.Stdout = &out
+	err = ccjsonparserCommand.Run()
+	assert.NoError(t, err)
+	assert.Equal(t, "This is an invalid JSON\n", out.String())
+
+	ccjsonparserCommand = exec.Command("./ccjsonparser", "tests/step3/invalid5.json")
+	ccjsonparserCommand.Dir = "./.."
+	out.Reset()
+	ccjsonparserCommand.Stdout = &out
+	err = ccjsonparserCommand.Run()
+	assert.NoError(t, err)
+	assert.Equal(t, "This is an invalid JSON\n", out.String())
+
+	ccjsonparserCommand = exec.Command("./ccjsonparser", "tests/step3/invalid6.json")
+	ccjsonparserCommand.Dir = "./.."
+	out.Reset()
+	ccjsonparserCommand.Stdout = &out
+	err = ccjsonparserCommand.Run()
+	assert.NoError(t, err)
+	assert.Equal(t, "This is an invalid JSON\n", out.String())
+
+	ccjsonparserCommand = exec.Command("./ccjsonparser", "tests/step3/invalid7.json")
+	ccjsonparserCommand.Dir = "./.."
+	out.Reset()
+	ccjsonparserCommand.Stdout = &out
+	err = ccjsonparserCommand.Run()
+	assert.NoError(t, err)
+	assert.Equal(t, "This is an invalid JSON\n", out.String())
+
+	ccjsonparserCommand = exec.Command("./ccjsonparser", "tests/step3/invalid8.json")
+	ccjsonparserCommand.Dir = "./.."
+	out.Reset()
+	ccjsonparserCommand.Stdout = &out
+	err = ccjsonparserCommand.Run()
+	assert.NoError(t, err)
+	assert.Equal(t, "This is an invalid JSON\n", out.String())
+
+	ccjsonparserCommand = exec.Command("./ccjsonparser", "tests/step3/invalid9.json")
+	ccjsonparserCommand.Dir = "./.."
+	out.Reset()
+	ccjsonparserCommand.Stdout = &out
+	err = ccjsonparserCommand.Run()
+	assert.NoError(t, err)
+	assert.Equal(t, "This is an invalid JSON\n", out.String())
+
 	ccjsonparserCommand = exec.Command("./ccjsonparser", "tests/step4/valid.json")
 	ccjsonparserCommand.Dir = "./.."
 	out.Reset()
