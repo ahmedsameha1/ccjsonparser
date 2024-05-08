@@ -595,4 +595,22 @@ func TestApp(t *testing.T) {
 	}, []string{"ccjsonparser", "invalid.json"})
 	assert.NoError(t, err)
 	assert.Equal(t, "This is a valid JSON", result)
+
+	result, err = app.App(func(name string) ([]byte, error) {
+		if name != "invalid.json" {
+			panic("error")
+		}
+		return []byte(`{
+			"key": "value",
+			"key-n": 101,
+			"key-o": {
+				"inner key: "inner value",
+				"key-l": [
+					"list value"
+				]
+			}
+		}`), nil
+	}, []string{"ccjsonparser", "invalid.json"})
+	assert.NoError(t, err)
+	assert.Equal(t, "This is an invalid JSON", result)
 }

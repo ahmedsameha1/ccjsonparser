@@ -1,6 +1,7 @@
 package endtoendtests
 
 import (
+	"os"
 	"os/exec"
 	"strings"
 	"testing"
@@ -249,11 +250,41 @@ func TestParseTheSimplestJsonObject(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "This is a valid JSON\n", out.String())
 
-	ccjsonparserCommand = exec.Command("./ccjsonparser", "tests/step3/invalid.json")
+	ccjsonparserCommand = exec.Command("./ccjsonparser", "tests/step4/invalid.json")
 	ccjsonparserCommand.Dir = "./.."
 	out.Reset()
 	ccjsonparserCommand.Stdout = &out
 	err = ccjsonparserCommand.Run()
 	assert.NoError(t, err)
 	assert.Equal(t, "This is an invalid JSON\n", out.String())
+}
+
+func TestJsonValidationOnJsonOrgTests(t *testing.T) {
+	testFiles, err := os.ReadDir("./../tests/json_org_tests")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, testFile := range testFiles {
+		if strings.HasPrefix(testFile.Name(), "pass") {
+			ccjsonparserCommand := exec.Command("./ccjsonparser", "tests/json_org_tests/"+testFile.Name())
+			ccjsonparserCommand.Dir = "./.."
+			var out strings.Builder
+			ccjsonparserCommand.Stdout = &out
+			err := ccjsonparserCommand.Run()
+			assert.NoError(t, err)
+			if !assert.Equal(t, "This is a valid JSON\n", out.String()) {
+				t.Log(testFile.Name())
+			}
+		} else {
+			ccjsonparserCommand := exec.Command("./ccjsonparser", "tests/json_org_tests/"+testFile.Name())
+			ccjsonparserCommand.Dir = "./.."
+			var out strings.Builder
+			ccjsonparserCommand.Stdout = &out
+			err := ccjsonparserCommand.Run()
+			assert.NoError(t, err)
+			if !assert.Equal(t, "This is an invalid JSON\n", out.String()) {
+				t.Log(testFile.Name())
+			}
+		}
+	}
 }
