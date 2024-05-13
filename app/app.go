@@ -141,8 +141,5 @@ func isLeftMostBracketCurly(innerString string) bool {
 	if len(stringEndingWithABracket) > 0 {
 		return string(stringEndingWithABracket[len(stringEndingWithABracket)-1]) == "{"
 	}
-	innerBracketCheckerPattern = `(?s)(\s*(null|true|false|-?\d{1}\.\d+([eE][-+]?)\d+|-?[1-9]\d+\.\d+([eE][-+]?)\d+|-?[1-9]\d*([eE][-+]?)\d+|-?\d{1}\.\d+|-?[1-9]\d+\.\d+|-?[1-9]\d*|"([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*"){1}\s*,\s*)*[{\[]`
-	innerBracketCheckerRegex = regexp.MustCompile(innerBracketCheckerPattern)
-	stringEndingWithABracket = innerBracketCheckerRegex.FindString(innerString)
-	return string(stringEndingWithABracket[len(stringEndingWithABracket)-1]) == "{"
+	return false
 }
