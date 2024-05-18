@@ -61,93 +61,44 @@ func handleJsonWithInnerListsOrObjects(fileContentString string, regex *regexp.R
 		innerString := removeBracketsFromTheWholeJsonString(fileContentString, "{", "}")
 		removeBracketsFromTheWholeJsonString(fileContentString, "{", "}")
 		if isTheLeftMostBracketCurly(innerString) {
-			firstCurlyBracketIndex := strings.Index(innerString, "{")
-			firstClosingCurlyBracketAfterTheOpenningOnePattern := `(?s)}\s*[,}\]]?\s*`
-			firstClosingCurlyBracketAfterTheOpenningOneRegex :=
-				regexp.MustCompile(firstClosingCurlyBracketAfterTheOpenningOnePattern)
-			startIndexAndEndIndexOfTheClosingCurlyBracket :=
-				firstClosingCurlyBracketAfterTheOpenningOneRegex.FindStringIndex(innerString)
-			if startIndexAndEndIndexOfTheClosingCurlyBracket != nil {
-				startIndexOfTheClosingCurlyBracket := startIndexAndEndIndexOfTheClosingCurlyBracket[0]
-				supposed_inner_json := innerString[firstCurlyBracketIndex : startIndexOfTheClosingCurlyBracket+1]
-				log.Printf(`"""%s"""\n`, supposed_inner_json)
-				if !regex.MatchString(supposed_inner_json) {
-					return "This is an invalid JSON", nil
-				}
-			} else {
-				return "This is an invalid JSON", nil
-			}
+			return handleTheLeftMostBracket(innerString, "{", `(?s)}\s*[,}\]]?\s*`, regex)
 			// Leftmost is [
 		} else {
-			firstSquareBracketIndex := strings.Index(fileContentString, "[")
-			lastSquareBracketIndex := strings.LastIndex(fileContentString, "]")
-			innerString := fileContentString[firstSquareBracketIndex+1 : lastSquareBracketIndex]
-			firstSquareBracketIndex = strings.Index(innerString, "[")
-			firstClosingSquareBracketAfterTheOpenningOnePattern := `(?s)]\s*[,}\]]?\s*`
-			firstClosingSquareBracketAfterTheOpenningOneRegex :=
-				regexp.MustCompile(firstClosingSquareBracketAfterTheOpenningOnePattern)
-			startIndexAndEndIndexOfTheClosingSquareBracket :=
-				firstClosingSquareBracketAfterTheOpenningOneRegex.FindStringIndex(innerString)
-			if startIndexAndEndIndexOfTheClosingSquareBracket != nil {
-				startIndexOfTheClosingSquareBracket := startIndexAndEndIndexOfTheClosingSquareBracket[0]
-				supposed_inner_json := innerString[firstSquareBracketIndex : startIndexOfTheClosingSquareBracket+1]
-				log.Printf(`"""%s"""\n`, supposed_inner_json)
-				if !regex.MatchString(supposed_inner_json) {
-					return "This is an invalid JSON", nil
-				}
-			} else {
-				return "This is an invalid JSON", nil
-			}
+			return handleTheLeftMostBracket(innerString, "[", `(?s)]\s*[,}\]]?\s*`, regex)
 		}
 		// Starts with [
 	} else {
 		innerString := removeBracketsFromTheWholeJsonString(fileContentString, "[", "]")
 		if isTheLeftMostBracketCurly(innerString) {
-			firstCurlyBracketIndex := strings.Index(innerString, "{")
-			firstClosingCurlyBracketAfterTheOpenningOnePattern := `(?s)}\s*[,}\]]?\s*`
-			firstClosingCurlyBracketAfterTheOpenningOneRegex :=
-				regexp.MustCompile(firstClosingCurlyBracketAfterTheOpenningOnePattern)
-			startIndexAndEndIndexOfTheClosingCurlyBracket :=
-				firstClosingCurlyBracketAfterTheOpenningOneRegex.FindStringIndex(innerString)
-			if startIndexAndEndIndexOfTheClosingCurlyBracket != nil {
-				startIndexOfTheClosingCurlyBracket := startIndexAndEndIndexOfTheClosingCurlyBracket[0]
-				supposed_inner_json := innerString[firstCurlyBracketIndex : startIndexOfTheClosingCurlyBracket+1]
-				log.Printf(`"""%s"""\n`, supposed_inner_json)
-				if !regex.MatchString(supposed_inner_json) {
-					return "This is an invalid JSON", nil
-				}
-			} else {
-				return "This is an invalid JSON", nil
-			}
+			return handleTheLeftMostBracket(innerString, "{", `(?s)}\s*[,}\]]?\s*`, regex)
 			// Leftmost is [
 		} else {
-			firstSquareBracketIndex := strings.Index(fileContentString, "[")
-			lastSquareBracketIndex := strings.LastIndex(fileContentString, "]")
-			innerString := fileContentString[firstSquareBracketIndex+1 : lastSquareBracketIndex]
-			firstSquareBracketIndex = strings.Index(innerString, "[")
-			firstClosingSquareBracketAfterTheOpenningOnePattern := `(?s)]\s*[,}\]]?\s*`
-			firstClosingSquareBracketAfterTheOpenningOneRegex :=
-				regexp.MustCompile(firstClosingSquareBracketAfterTheOpenningOnePattern)
-			startIndexAndEndIndexOfTheClosingSquareBracket :=
-				firstClosingSquareBracketAfterTheOpenningOneRegex.FindStringIndex(innerString)
-			if startIndexAndEndIndexOfTheClosingSquareBracket != nil {
-				startIndexOfTheClosingSquareBracket := startIndexAndEndIndexOfTheClosingSquareBracket[0]
-				supposed_inner_json := innerString[firstSquareBracketIndex : startIndexOfTheClosingSquareBracket+1]
-				log.Printf(`"""%s"""\n`, supposed_inner_json)
-				if !regex.MatchString(supposed_inner_json) {
-					return "This is an invalid JSON", nil
-				}
-			} else {
-				return "This is an invalid JSON", nil
-			}
+			return handleTheLeftMostBracket(innerString, "[", `(?s)]\s*[,}\]]?\s*`, regex)
 		}
-		return "This is a valid JSON", nil
 	}
-	return "This is a valid JSON", nil
 }
 
 func removeBracketsFromTheWholeJsonString(fileContentString, openning, closing string) string {
 	firstSquareBracketIndex := strings.Index(fileContentString, openning)
 	lastSquareBracketIndex := strings.LastIndex(fileContentString, closing)
 	return fileContentString[firstSquareBracketIndex+1 : lastSquareBracketIndex]
+}
+
+func handleTheLeftMostBracket(innerString, openning, closingPatternString string, regex *regexp.Regexp) (string, error) {
+	firstBracketIndex := strings.Index(innerString, openning)
+	firstClosingCurlyBracketAfterTheOpenningOneRegex :=
+		regexp.MustCompile(closingPatternString)
+	startIndexAndEndIndexOfTheClosingCurlyBracket :=
+		firstClosingCurlyBracketAfterTheOpenningOneRegex.FindStringIndex(innerString)
+	if startIndexAndEndIndexOfTheClosingCurlyBracket != nil {
+		startIndexOfTheClosingCurlyBracket := startIndexAndEndIndexOfTheClosingCurlyBracket[0]
+		supposed_inner_json := innerString[firstBracketIndex : startIndexOfTheClosingCurlyBracket+1]
+		log.Printf(`"""%s"""\n`, supposed_inner_json)
+		if !regex.MatchString(supposed_inner_json) {
+			return "This is an invalid JSON", nil
+		}
+	} else {
+		return "This is an invalid JSON", nil
+	}
+	return "This is a valid JSON", nil
 }
