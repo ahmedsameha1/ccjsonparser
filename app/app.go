@@ -46,7 +46,7 @@ func theWholeJSONstartsWithCurlyBracket(stringContent string) bool {
 	return startsWithCurlyBracketRegex.MatchString(stringContent)
 }
 
-func isLeftMostBracketCurly(innerString string) bool {
+func isTheLeftMostBracketCurly(innerString string) bool {
 	innerBracketCheckerPattern := `(?s)(\s*("([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*")\s*:\s*(null|true|false|-?\d{1}\.\d+([eE][-+]?)\d+|-?[1-9]\d+\.\d+([eE][-+]?)\d+|-?[1-9]\d*([eE][-+]?)\d+|-?\d{1}\.\d+|-?[1-9]\d+\.\d+|-?[1-9]\d*|"([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*"){1}\s*,\s*)*("([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*")\s*:\s*[{\[]`
 	innerBracketCheckerRegex := regexp.MustCompile(innerBracketCheckerPattern)
 	stringEndingWithABracket := innerBracketCheckerRegex.FindString(innerString)
@@ -58,11 +58,10 @@ func isLeftMostBracketCurly(innerString string) bool {
 
 func handleJsonWithInnerListsOrObjects(fileContentString string, regex *regexp.Regexp) (string, error) {
 	if theWholeJSONstartsWithCurlyBracket(fileContentString) {
-		firstCurlyBracketIndex := strings.Index(fileContentString, "{")
-		lastCurlyBracketIndex := strings.LastIndex(fileContentString, "}")
-		innerString := fileContentString[firstCurlyBracketIndex+1 : lastCurlyBracketIndex]
-		if isLeftMostBracketCurly(innerString) {
-			firstCurlyBracketIndex = strings.Index(innerString, "{")
+		innerString := removeBracketsFromTheWholeJsonString(fileContentString, "{", "}")
+		removeBracketsFromTheWholeJsonString(fileContentString, "{", "}")
+		if isTheLeftMostBracketCurly(innerString) {
+			firstCurlyBracketIndex := strings.Index(innerString, "{")
 			firstClosingCurlyBracketAfterTheOpenningOnePattern := `(?s)}\s*[,}\]]?\s*`
 			firstClosingCurlyBracketAfterTheOpenningOneRegex :=
 				regexp.MustCompile(firstClosingCurlyBracketAfterTheOpenningOnePattern)
@@ -102,10 +101,8 @@ func handleJsonWithInnerListsOrObjects(fileContentString string, regex *regexp.R
 		}
 		// Starts with [
 	} else {
-		firstSquareBracketIndex := strings.Index(fileContentString, "[")
-		lastSquareBracketIndex := strings.LastIndex(fileContentString, "]")
-		innerString := fileContentString[firstSquareBracketIndex+1 : lastSquareBracketIndex]
-		if isLeftMostBracketCurly(innerString) {
+		innerString := removeBracketsFromTheWholeJsonString(fileContentString, "[", "]")
+		if isTheLeftMostBracketCurly(innerString) {
 			firstCurlyBracketIndex := strings.Index(innerString, "{")
 			firstClosingCurlyBracketAfterTheOpenningOnePattern := `(?s)}\s*[,}\]]?\s*`
 			firstClosingCurlyBracketAfterTheOpenningOneRegex :=
@@ -147,4 +144,10 @@ func handleJsonWithInnerListsOrObjects(fileContentString string, regex *regexp.R
 		return "This is a valid JSON", nil
 	}
 	return "This is a valid JSON", nil
+}
+
+func removeBracketsFromTheWholeJsonString(fileContentString, openning, closing string) string {
+	firstSquareBracketIndex := strings.Index(fileContentString, openning)
+	lastSquareBracketIndex := strings.LastIndex(fileContentString, closing)
+	return fileContentString[firstSquareBracketIndex+1 : lastSquareBracketIndex]
 }
