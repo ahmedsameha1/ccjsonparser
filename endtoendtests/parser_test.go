@@ -257,6 +257,14 @@ func TestParseTheSimplestJsonObject(t *testing.T) {
 	err = ccjsonparserCommand.Run()
 	assert.NoError(t, err)
 	assert.Equal(t, "This is an invalid JSON\n", out.String())
+
+	ccjsonparserCommand = exec.Command("./ccjsonparser", "tests/step4/invalid2.json")
+	ccjsonparserCommand.Dir = "./.."
+	out.Reset()
+	ccjsonparserCommand.Stdout = &out
+	err = ccjsonparserCommand.Run()
+	assert.NoError(t, err)
+	assert.Equal(t, "This is an invalid JSON\n", out.String())
 }
 
 func TestJsonValidationOnJsonOrgTests(t *testing.T) {

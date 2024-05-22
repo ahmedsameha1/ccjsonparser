@@ -1,7 +1,6 @@
 package app
 
 import (
-	"log"
 	"regexp"
 	"strings"
 )
@@ -27,14 +26,12 @@ func App(readFile func(name string) ([]byte, error), args []string) (string, err
 		return "This is an invalid JSON", nil
 	}
 	if containsInnerListsOrObjects(fileContentString) {
-		// Starts with {
 		return handleJsonWithInnerListsOrObjects(fileContentString, regex)
 	}
 	return "This is a valid JSON", nil
 }
 
 func containsInnerListsOrObjects(stringContent string) bool {
-	//innerBracketCheckerPattern := `(?s){\s*(.*,)*\s*.*[{\[]|\[\s*(.*,)*\s*[{\[]`
 	innerBracketCheckerPattern := `(?s){(\s*("([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*")\s*:\s*(null|true|false|-?\d{1}\.\d+([eE][-+]?)\d+|-?[1-9]\d+\.\d+([eE][-+]?)\d+|-?[1-9]\d*([eE][-+]?)\d+|-?\d{1}\.\d+|-?[1-9]\d+\.\d+|-?[1-9]\d*|"([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*"){1}\s*,\s*)*("([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*")\s*:\s*[{\[]|\[(\s*(null|true|false|-?\d{1}\.\d+([eE][-+]?)\d+|-?[1-9]\d+\.\d+([eE][-+]?)\d+|-?[1-9]\d*([eE][-+]?)\d+|-?\d{1}\.\d+|-?[1-9]\d+\.\d+|-?[1-9]\d*|"([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*"){1}\s*,\s*)*[{\[]`
 	innerBracketCheckerRegex := regexp.MustCompile(innerBracketCheckerPattern)
 	return innerBracketCheckerRegex.MatchString(stringContent)
@@ -46,59 +43,50 @@ func theWholeJSONstartsWithCurlyBracket(stringContent string) bool {
 	return startsWithCurlyBracketRegex.MatchString(stringContent)
 }
 
-func isTheLeftMostBracketCurly(innerString string) bool {
-	innerBracketCheckerPattern := `(?s)(\s*("([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*")\s*:\s*(null|true|false|-?\d{1}\.\d+([eE][-+]?)\d+|-?[1-9]\d+\.\d+([eE][-+]?)\d+|-?[1-9]\d*([eE][-+]?)\d+|-?\d{1}\.\d+|-?[1-9]\d+\.\d+|-?[1-9]\d*|"([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*"){1}\s*,\s*)*("([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*")\s*:\s*[{\[]`
-	innerBracketCheckerRegex := regexp.MustCompile(innerBracketCheckerPattern)
-	stringEndingWithABracket := innerBracketCheckerRegex.FindString(innerString)
-	if len(stringEndingWithABracket) > 0 {
-		return string(stringEndingWithABracket[len(stringEndingWithABracket)-1]) == "{"
-	}
-	return false
-}
-
 func handleJsonWithInnerListsOrObjects(fileContentString string, regex *regexp.Regexp) (string, error) {
+		// Starts with {
 	if theWholeJSONstartsWithCurlyBracket(fileContentString) {
-		innerString := removeBracketsFromTheWholeJsonString(fileContentString, "{", "}")
-		removeBracketsFromTheWholeJsonString(fileContentString, "{", "}")
-		if isTheLeftMostBracketCurly(innerString) {
-			return handleTheLeftMostBracket(innerString, "{", `(?s)}\s*[,}\]]?\s*`, regex)
-			// Leftmost is [
-		} else {
-			return handleTheLeftMostBracket(innerString, "[", `(?s)]\s*[,}\]]?\s*`, regex)
+		innerString := removeOpenningBracketFromTheWholeJsonString(fileContentString, "{")
+		innerObjectsIndices := getInnerObjects(innerString)
+		for _, value := range innerObjectsIndices {
+			if !validateInnerJson(innerString[value[0]+1:value[1]-1], regex) {
+				return "This is an invalid JSON", nil
+			}
 		}
 		// Starts with [
 	} else {
-		innerString := removeBracketsFromTheWholeJsonString(fileContentString, "[", "]")
-		if isTheLeftMostBracketCurly(innerString) {
-			return handleTheLeftMostBracket(innerString, "{", `(?s)}\s*[,}\]]?\s*`, regex)
-			// Leftmost is [
-		} else {
-			return handleTheLeftMostBracket(innerString, "[", `(?s)]\s*[,}\]]?\s*`, regex)
+		innerString := removeOpenningBracketFromTheWholeJsonString(fileContentString, "[")
+		innerListsIndices := getInnerLists(innerString)
+		for _, value := range innerListsIndices {
+			if !validateInnerJson(innerString[value[0]+1:value[1]-1], regex) {
+				return "This is an invalid JSON", nil
+			}
 		}
-	}
-}
-
-func removeBracketsFromTheWholeJsonString(fileContentString, openning, closing string) string {
-	firstSquareBracketIndex := strings.Index(fileContentString, openning)
-	lastSquareBracketIndex := strings.LastIndex(fileContentString, closing)
-	return fileContentString[firstSquareBracketIndex+1 : lastSquareBracketIndex]
-}
-
-func handleTheLeftMostBracket(innerString, openning, closingPatternString string, regex *regexp.Regexp) (string, error) {
-	firstBracketIndex := strings.Index(innerString, openning)
-	firstClosingCurlyBracketAfterTheOpenningOneRegex :=
-		regexp.MustCompile(closingPatternString)
-	startIndexAndEndIndexOfTheClosingCurlyBracket :=
-		firstClosingCurlyBracketAfterTheOpenningOneRegex.FindStringIndex(innerString)
-	if startIndexAndEndIndexOfTheClosingCurlyBracket != nil {
-		startIndexOfTheClosingCurlyBracket := startIndexAndEndIndexOfTheClosingCurlyBracket[0]
-		supposed_inner_json := innerString[firstBracketIndex : startIndexOfTheClosingCurlyBracket+1]
-		log.Printf(`"""%s"""\n`, supposed_inner_json)
-		if !regex.MatchString(supposed_inner_json) {
-			return "This is an invalid JSON", nil
-		}
-	} else {
-		return "This is an invalid JSON", nil
 	}
 	return "This is a valid JSON", nil
+}
+
+func removeOpenningBracketFromTheWholeJsonString(fileContentString, openning string) string {
+	firstSquareBracketIndex := strings.Index(fileContentString, openning)
+	return fileContentString[firstSquareBracketIndex+1 :]
+}
+
+/*
+:\s*".*"[,}]
+*/
+
+func getInnerObjects(innerString string) [][]int {
+	innerObjectsPattern := `:\s*(\[[^][]*\]|{[^}{]*}|\[\s*".*"\s*\]|{\s*".*"\s*}|\[.*\[.*\].*\]|\{.*\{.*\}.*\})\s*[,}]`
+	innerObjectsRegex := regexp.MustCompile(innerObjectsPattern)
+	return innerObjectsRegex.FindAllIndex([]byte(innerString), -1)
+}
+
+func getInnerLists(innerString string) [][]int {
+	innerListsPattern := `\s*(\[[^][]*\]|{[^}{]*}|\[\s*".*"\s*\]|{\s*".*"\s*}|\[.*\[.*\].*\]|\{.*\{.*\}.*\})\s*[,\]]`
+	innerListsRegex := regexp.MustCompile(innerListsPattern)
+	return innerListsRegex.FindAllIndex([]byte(innerString), -1)
+}
+
+func validateInnerJson(objectString string, regex *regexp.Regexp) bool {
+	return regex.MatchString(objectString)
 }
