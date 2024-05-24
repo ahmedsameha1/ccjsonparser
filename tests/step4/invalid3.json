@@ -1,0 +1,11 @@
+[
+  "value",
+  101,
+  [
+     75,
+    [
+    8 "inner value"
+    ]
+  ],
+  ["list value"]
+]

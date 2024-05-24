@@ -44,10 +44,11 @@ func theWholeJSONstartsWithCurlyBracket(stringContent string) bool {
 }
 
 func handleJsonWithInnerListsOrObjects(fileContentString string, regex *regexp.Regexp) (string, error) {
-		// Starts with {
+	// Starts with {
 	if theWholeJSONstartsWithCurlyBracket(fileContentString) {
 		innerString := removeOpenningBracketFromTheWholeJsonString(fileContentString, "{")
 		innerObjectsIndices := getInnerObjects(innerString)
+		innerObjectsIndices = removeObjectsInStringValues(innerString, innerObjectsIndices)
 		for _, value := range innerObjectsIndices {
 			if !validateInnerJson(innerString[value[0]+1:value[1]-1], regex) {
 				return "This is an invalid JSON", nil
@@ -57,6 +58,7 @@ func handleJsonWithInnerListsOrObjects(fileContentString string, regex *regexp.R
 	} else {
 		innerString := removeOpenningBracketFromTheWholeJsonString(fileContentString, "[")
 		innerListsIndices := getInnerLists(innerString)
+		innerListsIndices = removeListsInStringValues(innerString, innerListsIndices)
 		for _, value := range innerListsIndices {
 			if !validateInnerJson(innerString[value[0]+1:value[1]-1], regex) {
 				return "This is an invalid JSON", nil
@@ -68,12 +70,8 @@ func handleJsonWithInnerListsOrObjects(fileContentString string, regex *regexp.R
 
 func removeOpenningBracketFromTheWholeJsonString(fileContentString, openning string) string {
 	firstSquareBracketIndex := strings.Index(fileContentString, openning)
-	return fileContentString[firstSquareBracketIndex+1 :]
+	return fileContentString[firstSquareBracketIndex+1:]
 }
-
-/*
-:\s*".*"[,}]
-*/
 
 func getInnerObjects(innerString string) [][]int {
 	innerObjectsPattern := `:\s*(\[[^][]*\]|{[^}{]*}|\[\s*".*"\s*\]|{\s*".*"\s*}|\[.*\[.*\].*\]|\{.*\{.*\}.*\})\s*[,}]`
@@ -89,4 +87,46 @@ func getInnerLists(innerString string) [][]int {
 
 func validateInnerJson(objectString string, regex *regexp.Regexp) bool {
 	return regex.MatchString(objectString)
+}
+
+// Needs to be rewritten to remove the unneeded work
+func removeObjectsInStringValues(innerString string, indices [][]int) [][]int {
+	stringValuesPattern := `:\s*".*"\s*[,}]`
+	stringValuesRegex := regexp.MustCompile(stringValuesPattern)
+	stringValuesIndices := stringValuesRegex.FindAllIndex([]byte(innerString), -1)
+	var revisedIndices [][]int = make([][]int, 0)
+	for _, v := range indices {
+		found := false
+		for _, v2 := range stringValuesIndices {
+			if v[0] > v2[0] && v[1] < v2[1]-1 {
+				found = true
+				break
+			}
+		}
+		if !found {
+			revisedIndices = append(revisedIndices, v)
+		}
+	}
+	return revisedIndices
+}
+
+// Needs to be rewritten to remove the unneeded work
+func removeListsInStringValues(innerString string, indices [][]int) [][]int {
+	stringValuesPattern := `\s*".*"\s*[,\]]`
+	stringValuesRegex := regexp.MustCompile(stringValuesPattern)
+	stringValuesIndices := stringValuesRegex.FindAllIndex([]byte(innerString), -1)
+	var revisedIndices [][]int = make([][]int, 0)
+	for _, v := range indices {
+		found := false
+		for _, v2 := range stringValuesIndices {
+			if v[0] > v2[0] && v[1] < v2[1]-1 {
+				found = true
+				break
+			}
+		}
+		if !found {
+			revisedIndices = append(revisedIndices, v)
+		}
+	}
+	return revisedIndices
 }

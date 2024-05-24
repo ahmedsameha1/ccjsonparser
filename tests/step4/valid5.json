@@ -1,0 +1,12 @@
+[
+  "value",
+  101,
+  {
+    "key": 75,
+    "key2":
+    {
+    "inner key": "inner value"
+    }
+  },
+  ["list value"]
+]

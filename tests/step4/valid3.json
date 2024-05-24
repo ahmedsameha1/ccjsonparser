@@ -1,0 +1,8 @@
+{
+  "key": "value",
+  "key-n": 101,
+  "special": "`1~!@#$%^&*()_+-={':[,]}|;.</>?",
+  "key-o": {
+    "inner key": "inner value"
+  }
+}
