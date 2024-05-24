@@ -1,6 +1,7 @@
 package app_test
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/ahmedsameha1/ccjsonparser/app"
@@ -613,4 +614,13 @@ func TestApp(t *testing.T) {
 	}, []string{"ccjsonparser", "invalid.json"})
 	assert.NoError(t, err)
 	assert.Equal(t, "This is an invalid JSON", result)
+
+	result, err = app.App(func(name string) ([]byte, error) {
+		if name != "invalid.json" {
+			panic("error")
+		}
+		return nil, errors.New("no such file")
+	}, []string{"ccjsonparser", "invalid.json"})
+	assert.Contains(t, err.Error(), "no such file")
+	assert.Equal(t, "", result)
 }

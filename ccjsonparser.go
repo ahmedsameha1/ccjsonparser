@@ -8,6 +8,10 @@ import (
 )
 
 func main() {
-	result, _ := app.App(os.ReadFile, os.Args)
+	result, err := app.App(os.ReadFile, os.Args)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
 	fmt.Println(result)
 }

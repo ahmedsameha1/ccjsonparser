@@ -6,7 +6,10 @@ import (
 )
 
 func App(readFile func(name string) ([]byte, error), args []string) (string, error) {
-	fileContentInByteArray, _ := readFile(args[1])
+	fileContentInByteArray, err := readFile(args[1])
+	if err != nil {
+		return "", err
+	}
 	fileContentString := string(fileContentInByteArray)
 	string_keys_values := `"([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*"`
 	string_values := `|` + string_keys_values + `|`
