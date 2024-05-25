@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestParseTheSimplestJsonObject(t *testing.T) {
+func TestValidation(t *testing.T) {
 	ccjsonparserCommand := exec.Command("./ccjsonparser", "tests/step1/valid.json")
 	ccjsonparserCommand.Dir = "./.."
 	var out strings.Builder

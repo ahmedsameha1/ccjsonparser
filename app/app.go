@@ -25,13 +25,23 @@ func App(readFile func(name string) ([]byte, error), args []string) (string, err
 	outer_curly_brakets := `{\s*(` + multiple_elments_in_outer_curly_brackets + last_element_in_outer_curly_brackets + `{1}){0,1}}`
 	regex_pattern := `(?s)\A\s*(` + outer_square_brackets + `|` + outer_curly_brakets + `){1}\s*\z`
 	regex := regexp.MustCompile(regex_pattern)
-	if !regex.MatchString(fileContentString) {
+	if !validate(fileContentString, regex, 0) {
 		return "This is an invalid JSON", nil
 	}
-	if containsInnerListsOrObjects(fileContentString) {
-		return handleJsonWithInnerListsOrObjects(fileContentString, regex)
-	}
 	return "This is a valid JSON", nil
+}
+
+func validate(underValidationJson string, regex *regexp.Regexp, recursionCounter int) bool {
+	if recursionCounter > 18 {
+		return false
+	}
+	if !regex.MatchString(underValidationJson) {
+		return false
+	}
+	if containsInnerListsOrObjects(underValidationJson) {
+		return handleJsonWithInnerListsOrObjects(underValidationJson, regex, recursionCounter)
+	}
+	return true
 }
 
 func containsInnerListsOrObjects(stringContent string) bool {
@@ -40,38 +50,38 @@ func containsInnerListsOrObjects(stringContent string) bool {
 	return innerBracketCheckerRegex.MatchString(stringContent)
 }
 
-func theWholeJSONstartsWithCurlyBracket(stringContent string) bool {
+func theWholeJsonIsAnObject(stringContent string) bool {
 	startWithCurlyBracketPattern := `(?s){(\s*("([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*")\s*:\s*(null|true|false|-?\d{1}\.\d+([eE][-+]?)\d+|-?[1-9]\d+\.\d+([eE][-+]?)\d+|-?[1-9]\d*([eE][-+]?)\d+|-?\d{1}\.\d+|-?[1-9]\d+\.\d+|-?[1-9]\d*|"([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*"){1}\s*,\s*)*("([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*")\s*:\s*[{\[]`
 	startsWithCurlyBracketRegex := regexp.MustCompile(startWithCurlyBracketPattern)
 	return startsWithCurlyBracketRegex.MatchString(stringContent)
 }
 
-func handleJsonWithInnerListsOrObjects(fileContentString string, regex *regexp.Regexp) (string, error) {
+func handleJsonWithInnerListsOrObjects(underValidationJson string, regex *regexp.Regexp, recursionCounter int) bool {
 	// Starts with {
-	if theWholeJSONstartsWithCurlyBracket(fileContentString) {
-		innerString := removeOpenningBracketFromTheWholeJsonString(fileContentString, "{")
+	if theWholeJsonIsAnObject(underValidationJson) {
+		innerString := removeTheOpenningBracketFromTheWholeJsonString(underValidationJson, "{")
 		innerObjectsIndices := getInnerObjects(innerString)
 		innerObjectsIndices = removeObjectsInStringValues(innerString, innerObjectsIndices)
 		for _, value := range innerObjectsIndices {
-			if !validateInnerJson(innerString[value[0]+1:value[1]-1], regex) {
-				return "This is an invalid JSON", nil
+			if !validate(innerString[value[0]+1:value[1]-1], regex, recursionCounter+1) {
+				return false
 			}
 		}
 		// Starts with [
 	} else {
-		innerString := removeOpenningBracketFromTheWholeJsonString(fileContentString, "[")
+		innerString := removeTheOpenningBracketFromTheWholeJsonString(underValidationJson, "[")
 		innerListsIndices := getInnerLists(innerString)
 		innerListsIndices = removeListsInStringValues(innerString, innerListsIndices)
 		for _, value := range innerListsIndices {
-			if !validateInnerJson(innerString[value[0]+1:value[1]-1], regex) {
-				return "This is an invalid JSON", nil
+			if !validate(innerString[value[0]:value[1]-1], regex, recursionCounter+1) {
+				return false
 			}
 		}
 	}
-	return "This is a valid JSON", nil
+	return true
 }
 
-func removeOpenningBracketFromTheWholeJsonString(fileContentString, openning string) string {
+func removeTheOpenningBracketFromTheWholeJsonString(fileContentString, openning string) string {
 	firstSquareBracketIndex := strings.Index(fileContentString, openning)
 	return fileContentString[firstSquareBracketIndex+1:]
 }
