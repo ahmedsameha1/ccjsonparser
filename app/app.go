@@ -61,7 +61,6 @@ func handleJsonWithInnerListsOrObjects(underValidationJson string, regex *regexp
 	if theWholeJsonIsAnObject(underValidationJson) {
 		innerString := removeTheOpenningBracketFromTheWholeJsonString(underValidationJson, "{")
 		innerObjectsIndices := getInnerObjects(innerString)
-		innerObjectsIndices = removeObjectsInStringValues(innerString, innerObjectsIndices)
 		for _, value := range innerObjectsIndices {
 			if !validate(innerString[value[0]+1:value[1]-1], regex, recursionCounter+1) {
 				return false
@@ -71,7 +70,6 @@ func handleJsonWithInnerListsOrObjects(underValidationJson string, regex *regexp
 	} else {
 		innerString := removeTheOpenningBracketFromTheWholeJsonString(underValidationJson, "[")
 		innerListsIndices := getInnerLists(innerString)
-		innerListsIndices = removeListsInStringValues(innerString, innerListsIndices)
 		for _, value := range innerListsIndices {
 			if !validate(innerString[value[0]:value[1]-1], regex, recursionCounter+1) {
 				return false
@@ -89,24 +87,27 @@ func removeTheOpenningBracketFromTheWholeJsonString(fileContentString, openning 
 func getInnerObjects(innerString string) [][]int {
 	innerObjectsPattern := `:\s*(\[[^][]*\]|{[^}{]*}|\[\s*".*"\s*\]|{\s*".*"\s*}|\[.*\[.*\].*\]|\{.*\{.*\}.*\})\s*[,}]`
 	innerObjectsRegex := regexp.MustCompile(innerObjectsPattern)
-	return innerObjectsRegex.FindAllIndex([]byte(innerString), -1)
+	innerObjects := innerObjectsRegex.FindAllIndex([]byte(innerString), -1)
+	innerObjects = removeObjectsInStringValues(innerString, innerObjects)
+	return innerObjects
 }
 
 func getInnerLists(innerString string) [][]int {
 	innerListsPattern := `\s*(\[[^][]*\]|{[^}{]*}|\[\s*".*"\s*\]|{\s*".*"\s*}|\[.*\[.*\].*\]|\{.*\{.*\}.*\})\s*[,\]]`
 	innerListsRegex := regexp.MustCompile(innerListsPattern)
-	return innerListsRegex.FindAllIndex([]byte(innerString), -1)
+	innerLists := innerListsRegex.FindAllIndex([]byte(innerString), -1)
+	innerLists = removeListsInStringValues(innerString, innerLists)
+	return innerLists
 }
 
-func validateInnerJson(objectString string, regex *regexp.Regexp) bool {
-	return regex.MatchString(objectString)
-}
-
-// Needs to be rewritten to remove the unneeded work
 func removeObjectsInStringValues(innerString string, indices [][]int) [][]int {
 	stringValuesPattern := `:\s*".*"\s*[,}]`
 	stringValuesRegex := regexp.MustCompile(stringValuesPattern)
 	stringValuesIndices := stringValuesRegex.FindAllIndex([]byte(innerString), -1)
+	if indices[len(indices)-1][0] < (stringValuesIndices[0][1]-1) ||
+		indices[0][0] > (stringValuesIndices[len(stringValuesIndices)-1][1]) {
+		return indices
+	}
 	var revisedIndices [][]int = make([][]int, 0)
 	for _, v := range indices {
 		found := false
@@ -123,11 +124,14 @@ func removeObjectsInStringValues(innerString string, indices [][]int) [][]int {
 	return revisedIndices
 }
 
-// Needs to be rewritten to remove the unneeded work
 func removeListsInStringValues(innerString string, indices [][]int) [][]int {
 	stringValuesPattern := `\s*".*"\s*[,\]]`
 	stringValuesRegex := regexp.MustCompile(stringValuesPattern)
 	stringValuesIndices := stringValuesRegex.FindAllIndex([]byte(innerString), -1)
+	if indices[len(indices)-1][0] < (stringValuesIndices[0][1]-1) ||
+		indices[0][0] > (stringValuesIndices[len(stringValuesIndices)-1][1]) {
+		return indices
+	}
 	var revisedIndices [][]int = make([][]int, 0)
 	for _, v := range indices {
 		found := false
