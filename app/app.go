@@ -26,7 +26,7 @@ func App(readFile func(name string) ([]byte, error), args []string) (string, err
 	regex_pattern := `(?s)\A\s*(` + outer_square_brackets + `|` + outer_curly_brakets + `){1}\s*\z`
 	regex := regexp.MustCompile(regex_pattern)
 	if !validate(fileContentString, regex, 0) {
-		return "This is an invalid JSON", nil
+		return produceAReasonForInvalidation(fileContentString), nil
 	}
 	return "This is a valid JSON", nil
 }
@@ -146,4 +146,16 @@ func removeListsInStringValues(innerString string, indices [][]int) [][]int {
 		}
 	}
 	return revisedIndices
+}
+
+func produceAReasonForInvalidation(fileContentString string) string {
+	if IsThereNoObjectOrArray(fileContentString) {
+		return "Should contains an object or an Array"
+	}
+	return "This is an invalid JSON"
+}
+
+func IsThereNoObjectOrArray(fileContentString string) bool {
+	regex := regexp.MustCompile(`(?s)\A\s*\z`)
+	return regex.MatchString(fileContentString)
 }
