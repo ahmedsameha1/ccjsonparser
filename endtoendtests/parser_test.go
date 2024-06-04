@@ -24,7 +24,7 @@ func TestValidation(t *testing.T) {
 	ccjsonparserCommand.Stdout = &out
 	err = ccjsonparserCommand.Run()
 	assert.NoError(t, err)
-	assert.Equal(t, "Should contains an object or an Array\n", out.String())
+	assert.Equal(t, "MUST be an object, array, number, or string, or false or null or true\n", out.String())
 
 	ccjsonparserCommand = exec.Command("./ccjsonparser", "tests/step2/valid.json")
 	ccjsonparserCommand.Dir = "./.."

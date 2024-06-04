@@ -19,13 +19,22 @@ func TestApp(t *testing.T) {
 	assert.Equal(t, "This is a valid JSON", result)
 
 	result, err = app.App(func(name string) ([]byte, error) {
+		if name != "valid.json" {
+			panic("error")
+		}
+		return []byte(`""`), nil
+	}, []string{"ccjsonparser", "valid.json"})
+	assert.NoError(t, err)
+	assert.Equal(t, "This is a valid JSON", result)
+
+	result, err = app.App(func(name string) ([]byte, error) {
 		if name != "invalid.json" {
 			panic("error")
 		}
 		return []byte(""), nil
 	}, []string{"ccjsonparser", "invalid.json"})
 	assert.NoError(t, err)
-	assert.Equal(t, "Should contains an object or an Array", result)
+	assert.Equal(t, "MUST be an object, array, number, or string, or false or null or true", result)
 
 	result, err = app.App(func(name string) ([]byte, error) {
 		if name != "valid.json" {
