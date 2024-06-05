@@ -23,7 +23,7 @@ func App(readFile func(name string) ([]byte, error), args []string) (string, err
 	last_element_in_outer_curly_brackets := `(\s*` + object_key + `\s*:` + inner_element + `\s*)`
 	multiple_elments_in_outer_curly_brackets := `(\s*` + object_key + `\s*:` + inner_element + `\s*,\s*)*`
 	outer_curly_brakets := `{\s*(` + multiple_elments_in_outer_curly_brackets + last_element_in_outer_curly_brackets + `{1}){0,1}}`
-	regex_pattern := `(?s)\A\s*(` + strinG + `|` + number + `|` + outer_square_brackets + `|` +
+	regex_pattern := `(?s)\A\s*(` + strinG + `|` + number + `|false|null|true|` + outer_square_brackets + `|` +
 		outer_curly_brakets + `){1}\s*\z`
 	regex := regexp.MustCompile(regex_pattern)
 	if !validate(fileContentString, regex, 0) {
