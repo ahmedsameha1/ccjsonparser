@@ -11,19 +11,20 @@ func App(readFile func(name string) ([]byte, error), args []string) (string, err
 		return "", err
 	}
 	fileContentString := string(fileContentInByteArray)
-	string_keys_values := `"([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*"`
-	string_values := `|` + string_keys_values + `|`
-	numbers := `-?\d{1}\.\d+([eE][-+]?)\d+|-?[1-9]\d+\.\d+([eE][-+]?)\d+|-?[1-9]\d*([eE][-+]?)\d+|-?\d{1}\.\d+|-?[1-9]\d+\.\d+|-?[1-9]\d*`
+	strinG := `"([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*"`
+	string_values := `|` + strinG + `|`
+	number := `-?\d{1}\.\d+([eE][-+]?)\d+|-?[1-9]\d+\.\d+([eE][-+]?)\d+|-?[1-9]\d*([eE][-+]?)\d+|-?\d{1}\.\d+|-?[1-9]\d+\.\d+|-?[1-9]\d*`
 	inner_brackets := `\[[^][]*\]|{[^}{]*}|\[.*\[.*\].*\]|\{.*\{.*\}.*\}`
-	inner_element := `\s*(null|true|false|` + numbers + string_values + inner_brackets + `){1}`
+	inner_element := `\s*(null|true|false|` + number + string_values + inner_brackets + `){1}`
 	last_element_in_outer_squrare_brackets := `(` + inner_element + `\s*)`
 	multiple_elments_in_outer_square_brackets := `(` + inner_element + `\s*,\s*)*`
 	outer_square_brackets := `\[\s*(` + multiple_elments_in_outer_square_brackets + last_element_in_outer_squrare_brackets + `{1}){0,1}\]`
-	object_key := `(` + string_keys_values + `)`
+	object_key := `(` + strinG + `)`
 	last_element_in_outer_curly_brackets := `(\s*` + object_key + `\s*:` + inner_element + `\s*)`
 	multiple_elments_in_outer_curly_brackets := `(\s*` + object_key + `\s*:` + inner_element + `\s*,\s*)*`
 	outer_curly_brakets := `{\s*(` + multiple_elments_in_outer_curly_brackets + last_element_in_outer_curly_brackets + `{1}){0,1}}`
-	regex_pattern := `(?s)\A\s*(` + string_keys_values + `|` + outer_square_brackets + `|` + outer_curly_brakets + `){1}\s*\z`
+	regex_pattern := `(?s)\A\s*(` + strinG + `|` + number + `|` + outer_square_brackets + `|` +
+		outer_curly_brakets + `){1}\s*\z`
 	regex := regexp.MustCompile(regex_pattern)
 	if !validate(fileContentString, regex, 0) {
 		return produceAReasonForInvalidation(fileContentString), nil

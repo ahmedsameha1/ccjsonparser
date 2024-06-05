@@ -28,6 +28,15 @@ func TestApp(t *testing.T) {
 	assert.Equal(t, "This is a valid JSON", result)
 
 	result, err = app.App(func(name string) ([]byte, error) {
+		if name != "valid.json" {
+			panic("error")
+		}
+		return []byte(`-74.23`), nil
+	}, []string{"ccjsonparser", "valid.json"})
+	assert.NoError(t, err)
+	assert.Equal(t, "This is a valid JSON", result)
+
+	result, err = app.App(func(name string) ([]byte, error) {
 		if name != "invalid.json" {
 			panic("error")
 		}
