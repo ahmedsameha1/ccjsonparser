@@ -5,28 +5,29 @@ import (
 	"strings"
 )
 
+const strinG string = `"([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*"`
+const number string = `-?\d{1}\.\d+([eE][-+]?)\d+|-?[1-9]\d+\.\d+([eE][-+]?)\d+|-?[1-9]\d*([eE][-+]?)\d+|-?\d{1}\.\d+|-?[1-9]\d+\.\d+|-?[1-9]\d*`
+const innerBrackets string = `\[[^][]*\]|{[^}{]*}|\[.*\[.*\].*\]|\{.*\{.*\}.*\}`
+const stringValues string = `|` + strinG + `|`
+const innerElement string = `\s*(null|true|false|` + number + stringValues + innerBrackets + `){1}`
+const lastElementInOuterSqurareBrackets string = `(` + innerElement + `\s*)`
+const multipleElmentsInOuterSquareBrackets string = `(` + innerElement + `\s*,\s*)*`
+const outerSquareBrackets string = `\[\s*(` + multipleElmentsInOuterSquareBrackets + lastElementInOuterSqurareBrackets + `{1}){0,1}\]`
+const objectKey string = `(` + strinG + `)`
+const lastElementInOuterCurlyBrackets string = `(\s*` + objectKey + `\s*:` + innerElement + `\s*)`
+const multipleElmentsInOuterCurlyBrackets string = `(\s*` + objectKey + `\s*:` + innerElement + `\s*,\s*)*`
+const outerCurlyBrakets string = `{\s*(` + multipleElmentsInOuterCurlyBrackets + lastElementInOuterCurlyBrackets + `{1}){0,1}}`
+const validJSONPattern string = `(?s)\A\s*(` + strinG + `|` + number + `|false|null|true|` + outerSquareBrackets + `|` +
+	outerCurlyBrakets + `){1}\s*\z`
+
 func App(readFile func(name string) ([]byte, error), args []string) (string, error) {
 	fileContentInByteArray, err := readFile(args[1])
 	if err != nil {
 		return "", err
 	}
 	fileContentString := string(fileContentInByteArray)
-	strinG := `"([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*"`
-	string_values := `|` + strinG + `|`
-	number := `-?\d{1}\.\d+([eE][-+]?)\d+|-?[1-9]\d+\.\d+([eE][-+]?)\d+|-?[1-9]\d*([eE][-+]?)\d+|-?\d{1}\.\d+|-?[1-9]\d+\.\d+|-?[1-9]\d*`
-	inner_brackets := `\[[^][]*\]|{[^}{]*}|\[.*\[.*\].*\]|\{.*\{.*\}.*\}`
-	inner_element := `\s*(null|true|false|` + number + string_values + inner_brackets + `){1}`
-	last_element_in_outer_squrare_brackets := `(` + inner_element + `\s*)`
-	multiple_elments_in_outer_square_brackets := `(` + inner_element + `\s*,\s*)*`
-	outer_square_brackets := `\[\s*(` + multiple_elments_in_outer_square_brackets + last_element_in_outer_squrare_brackets + `{1}){0,1}\]`
-	object_key := `(` + strinG + `)`
-	last_element_in_outer_curly_brackets := `(\s*` + object_key + `\s*:` + inner_element + `\s*)`
-	multiple_elments_in_outer_curly_brackets := `(\s*` + object_key + `\s*:` + inner_element + `\s*,\s*)*`
-	outer_curly_brakets := `{\s*(` + multiple_elments_in_outer_curly_brackets + last_element_in_outer_curly_brackets + `{1}){0,1}}`
-	regex_pattern := `(?s)\A\s*(` + strinG + `|` + number + `|false|null|true|` + outer_square_brackets + `|` +
-		outer_curly_brakets + `){1}\s*\z`
-	regex := regexp.MustCompile(regex_pattern)
-	if !validate(fileContentString, regex, 0) {
+	validJSONregex := regexp.MustCompile(validJSONPattern)
+	if !validate(fileContentString, validJSONregex, 0) {
 		return produceAReasonForInvalidation(fileContentString), nil
 	}
 	return "This is a valid JSON", nil
@@ -150,13 +151,21 @@ func removeListsInStringValues(innerString string, indices [][]int) [][]int {
 }
 
 func produceAReasonForInvalidation(fileContentString string) string {
-	if IsThereNoObjectOrArray(fileContentString) {
+	if isThereNoObjectOrArray(fileContentString) {
 		return "MUST be an object, array, number, or string, or false or null or true"
+	}
+	if multipleValuesOutsidAnArray(fileContentString) {
+		return "Multiple values outside of an array"
 	}
 	return "This is an invalid JSON"
 }
 
-func IsThereNoObjectOrArray(fileContentString string) bool {
+func isThereNoObjectOrArray(fileContentString string) bool {
 	regex := regexp.MustCompile(`(?s)\A\s*\z`)
+	return regex.MatchString(fileContentString)
+}
+
+func multipleValuesOutsidAnArray(fileContentString string) bool {
+	regex := regexp.MustCompile(`(?s)\A\s*((` + strinG + `|` + number + `|false|null|true|` + innerBrackets + `)\s*(,\s*)*){2,}\s*\z`)
 	return regex.MatchString(fileContentString)
 }
