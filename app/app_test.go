@@ -136,6 +136,15 @@ func TestApp(t *testing.T) {
 	assert.Equal(t, "Multiple values outside of an array", result)
 
 	result, err = app.App(func(name string) ([]byte, error) {
+		if name != "invalid.json" {
+			panic("error")
+		}
+		return []byte(`"str\074b"`), nil
+	}, []string{"ccjsonparser", "invalid.json"})
+	assert.NoError(t, err)
+	assert.Equal(t, "This is an invalid string, JSON", result)
+
+	result, err = app.App(func(name string) ([]byte, error) {
 		if name != "valid.json" {
 			panic("error")
 		}

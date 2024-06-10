@@ -157,6 +157,9 @@ func produceAReasonForInvalidation(fileContentString string) string {
 	if multipleValuesOutsidAnArray(fileContentString) {
 		return "Multiple values outside of an array"
 	}
+	if isString(fileContentString) {
+		return "This is an invalid string, JSON"
+	}
 	return "This is an invalid JSON"
 }
 
@@ -167,5 +170,10 @@ func isThereNoObjectOrArray(fileContentString string) bool {
 
 func multipleValuesOutsidAnArray(fileContentString string) bool {
 	regex := regexp.MustCompile(`(?s)\A\s*((` + strinG + `|` + number + `|false|null|true|` + innerBrackets + `)\s*(,\s*)*){2,}\s*\z`)
+	return regex.MatchString(fileContentString)
+}
+
+func isString(fileContentString string) bool {
+	regex := regexp.MustCompile(`(?s)\A\s*".*"\s*\z`)
 	return regex.MatchString(fileContentString)
 }

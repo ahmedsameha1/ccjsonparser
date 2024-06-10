@@ -122,6 +122,54 @@ func TestValidation(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "Multiple values outside of an array\n", out.String())
 
+	ccjsonparserCommand = exec.Command("./ccjsonparser", "tests/step2/invalid9.json")
+	ccjsonparserCommand.Dir = "./.."
+	out.Reset()
+	ccjsonparserCommand.Stdout = &out
+	err = ccjsonparserCommand.Run()
+	assert.NoError(t, err)
+	assert.Equal(t, "This is an invalid string, JSON\n", out.String())
+
+	ccjsonparserCommand = exec.Command("./ccjsonparser", "tests/step2/invalid10.json")
+	ccjsonparserCommand.Dir = "./.."
+	out.Reset()
+	ccjsonparserCommand.Stdout = &out
+	err = ccjsonparserCommand.Run()
+	assert.NoError(t, err)
+	assert.Equal(t, "This is an invalid string, JSON\n", out.String())
+
+	ccjsonparserCommand = exec.Command("./ccjsonparser", "tests/step2/invalid11.json")
+	ccjsonparserCommand.Dir = "./.."
+	out.Reset()
+	ccjsonparserCommand.Stdout = &out
+	err = ccjsonparserCommand.Run()
+	assert.NoError(t, err)
+	assert.Equal(t, "This is an invalid string, JSON\n", out.String())
+
+	ccjsonparserCommand = exec.Command("./ccjsonparser", "tests/step2/invalid12.json")
+	ccjsonparserCommand.Dir = "./.."
+	out.Reset()
+	ccjsonparserCommand.Stdout = &out
+	err = ccjsonparserCommand.Run()
+	assert.NoError(t, err)
+	assert.Equal(t, "This is an invalid string, JSON\n", out.String())
+
+	ccjsonparserCommand = exec.Command("./ccjsonparser", "tests/step2/invalid13.json")
+	ccjsonparserCommand.Dir = "./.."
+	out.Reset()
+	ccjsonparserCommand.Stdout = &out
+	err = ccjsonparserCommand.Run()
+	assert.NoError(t, err)
+	assert.Equal(t, "This is an invalid string, JSON\n", out.String())
+
+	ccjsonparserCommand = exec.Command("./ccjsonparser", "tests/step2/invalid14.json")
+	ccjsonparserCommand.Dir = "./.."
+	out.Reset()
+	ccjsonparserCommand.Stdout = &out
+	err = ccjsonparserCommand.Run()
+	assert.NoError(t, err)
+	assert.Equal(t, "This is an invalid string, JSON\n", out.String())
+
 	ccjsonparserCommand = exec.Command("./ccjsonparser", "tests/step2/fail10.json")
 	ccjsonparserCommand.Dir = "./.."
 	out.Reset()
