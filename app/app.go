@@ -160,6 +160,9 @@ func produceAReasonForInvalidation(fileContentString string) string {
 	if isString(fileContentString) {
 		return "This is an invalid string, JSON"
 	}
+	if isNull(fileContentString) {
+		return "Should be \"null\""
+	}
 	return "This is an invalid JSON"
 }
 
@@ -175,5 +178,10 @@ func multipleValuesOutsidAnArray(fileContentString string) bool {
 
 func isString(fileContentString string) bool {
 	regex := regexp.MustCompile(`(?s)\A\s*".*"\s*\z`)
+	return regex.MatchString(fileContentString)
+}
+
+func isNull(fileContentString string) bool {
+	regex := regexp.MustCompile(`(?si)\A\s*null\s*\z`)
 	return regex.MatchString(fileContentString)
 }

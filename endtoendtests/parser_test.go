@@ -344,7 +344,7 @@ func TestValidation(t *testing.T) {
 	ccjsonparserCommand.Stdout = &out
 	err = ccjsonparserCommand.Run()
 	assert.NoError(t, err)
-	assert.Equal(t, "This is an invalid JSON\n", out.String())
+	assert.Equal(t, "Should be \"null\"\n", out.String())
 
 	ccjsonparserCommand = exec.Command("./ccjsonparser", "tests/step3/invalid12.json")
 	ccjsonparserCommand.Dir = "./.."
