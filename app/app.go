@@ -166,6 +166,9 @@ func produceAReasonForInvalidation(fileContentString string) string {
 	if isFalse(fileContentString) {
 		return "Should be \"false\""
 	}
+	if isTrue(fileContentString) {
+		return "Should be \"true\""
+	}
 	return "This is an invalid JSON"
 }
 
@@ -191,5 +194,10 @@ func isNull(fileContentString string) bool {
 
 func isFalse(fileContentString string) bool {
 	regex := regexp.MustCompile(`(?si)\A\s*false\s*\z`)
+	return regex.MatchString(fileContentString)
+}
+
+func isTrue(fileContentString string) bool {
+	regex := regexp.MustCompile(`(?si)\A\s*true\s*\z`)
 	return regex.MatchString(fileContentString)
 }

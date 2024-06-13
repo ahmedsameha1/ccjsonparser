@@ -360,7 +360,7 @@ func TestValidation(t *testing.T) {
 	ccjsonparserCommand.Stdout = &out
 	err = ccjsonparserCommand.Run()
 	assert.NoError(t, err)
-	assert.Equal(t, "This is an invalid JSON\n", out.String())
+	assert.Equal(t, "Should be \"true\"\n", out.String())
 
 
 	ccjsonparserCommand = exec.Command("./ccjsonparser", "tests/step4/valid.json")
