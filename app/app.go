@@ -1,6 +1,7 @@
 package app
 
 import (
+	"errors"
 	"regexp"
 	"strings"
 )
@@ -28,7 +29,7 @@ func App(readFile func(name string) ([]byte, error), args []string) (string, err
 	fileContentString := string(fileContentInByteArray)
 	validJSONregex := regexp.MustCompile(validJSONPattern)
 	if !validate(fileContentString, validJSONregex, 0) {
-		return produceAReasonForInvalidation(fileContentString), nil
+		return "", errors.New(produceAReasonForInvalidation(fileContentString))
 	}
 	return "This is a valid JSON", nil
 }
@@ -151,25 +152,26 @@ func removeListsInStringValues(innerString string, indices [][]int) [][]int {
 }
 
 func produceAReasonForInvalidation(fileContentString string) string {
+	var invalid string = "This is an invalid JSON"
 	if isThereNoObjectOrArray(fileContentString) {
-		return "MUST be an object, array, number, or string, or false or null or true"
+		return invalid + "\nMUST be an object, array, number, or string, or false or null or true"
 	}
 	if multipleValuesOutsidAnArray(fileContentString) {
-		return "Multiple values outside of an array"
+		return invalid + "\nMultiple values outside of an array"
 	}
 	if isString(fileContentString) {
-		return "This is an invalid string, JSON"
+		return invalid + "\nThis is an invalid string"
 	}
 	if isNull(fileContentString) {
-		return "Should be \"null\""
+		return invalid + "\nShould be \"null\""
 	}
 	if isFalse(fileContentString) {
-		return "Should be \"false\""
+		return invalid + "\nShould be \"false\""
 	}
 	if isTrue(fileContentString) {
-		return "Should be \"true\""
+		return invalid + "\nShould be \"true\""
 	}
-	return "This is an invalid JSON"
+	return invalid
 }
 
 func isThereNoObjectOrArray(fileContentString string) bool {
