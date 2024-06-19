@@ -171,6 +171,12 @@ func produceAReasonForInvalidation(fileContentString string) string {
 	if isTrue(fileContentString) {
 		return invalid + "\nShould be \"true\""
 	}
+	if isALeadedZeroNumber(fileContentString) {
+		return invalid + "\nAn invalid number, there is a leading zero"
+	}
+	if isALeadedPlusNumber(fileContentString) {
+		return invalid + "\nAn invalid number, there is a leading +"
+	}
 	return invalid
 }
 
@@ -201,5 +207,15 @@ func isFalse(fileContentString string) bool {
 
 func isTrue(fileContentString string) bool {
 	regex := regexp.MustCompile(`(?si)\A\s*true\s*\z`)
+	return regex.MatchString(fileContentString)
+}
+
+func isALeadedZeroNumber(fileContentString string) bool {
+	regex := regexp.MustCompile(`(?s)\A\s*([0-]?\d{1}\.\d+([eE][-+]?)\d+|[0-]?[1-9]\d+\.\d+([eE][-+]?)\d+|[0-]?[1-9]\d*([eE][-+]?)\d+|[0-]?\d{1}\.\d+|[0-]?[1-9]\d+\.\d+|[0-]?[1-9]\d*)\s*\z`)
+	return regex.MatchString(fileContentString)
+}
+
+func isALeadedPlusNumber(fileContentString string) bool {
+	regex := regexp.MustCompile(`(?s)\A\s*([+-]?\d{1}\.\d+([eE][-+]?)\d+|[+-]?[1-9]\d+\.\d+([eE][-+]?)\d+|[+-]?[1-9]\d*([eE][-+]?)\d+|[+-]?\d{1}\.\d+|[+-]?[1-9]\d+\.\d+|[+-]?[1-9]\d*)\s*\z`)
 	return regex.MatchString(fileContentString)
 }
