@@ -95,6 +95,8 @@ func TestInvalidCases(t *testing.T) {
 			errResult: "This is an invalid JSON\nThis is an array that contains extra tail comma(s)\n"},
 		{filePath: "tests/step2/fail5.json",
 			errResult: "This is an invalid JSON\nThis is an array that contains extra tail comma(s)\n"},
+		{filePath: "tests/step2/fail6.json",
+			errResult: "This is an invalid JSON\nThis is an array that contains extra advancing comma(s)\n"},
 		{filePath: "tests/step3/invalid.json",
 			errResult: "This is an invalid JSON\n"},
 		{filePath: "tests/step3/invalid2.json",

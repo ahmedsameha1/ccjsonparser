@@ -78,6 +78,12 @@ func TestApp(t *testing.T) {
 			err: errors.New("This is an invalid JSON\nThis is an array that contains extra tail comma(s)")},
 		{fileName: "invalid.json", fileContent: `["key", "value",,]`, result: "",
 			err: errors.New("This is an invalid JSON\nThis is an array that contains extra tail comma(s)")},
+		{fileName: "invalid.json", fileContent: `[,"key", "value"]`, result: "",
+			err: errors.New("This is an invalid JSON\nThis is an array that contains extra advancing comma(s)")},
+		{fileName: "invalid.json", fileContent: `[,,"key", "value"]`, result: "",
+			err: errors.New("This is an invalid JSON\nThis is an array that contains extra advancing comma(s)")},
+		{fileName: "invalid.json", fileContent: `[,"key", "value",]`, result: "",
+			err: errors.New("This is an invalid JSON\nThis is an array that contains extra advancing comma(s)")},
 		{fileName: "invalid.json", fileContent: `{"key": "value",}`, result: "",
 			err: errors.New("This is an invalid JSON")},
 		{fileName: "invalid.json", fileContent: `{
