@@ -70,6 +70,10 @@ func TestApp(t *testing.T) {
 			"key 5 ": " value 5"
 		  }`, result: "This is a valid JSON",
 			err: nil},
+		{fileName: "invalid.json", fileContent: `["key", "value"`, result: "",
+			err: errors.New("This is an invalid JSON\nThis is an unclosed array")},
+		{fileName: "invalid.json", fileContent: `["key", "value"}`, result: "",
+			err: errors.New("This is an invalid JSON\nThis is an array that is closed as an object")},
 		{fileName: "invalid.json", fileContent: `{"key": "value",}`, result: "",
 			err: errors.New("This is an invalid JSON")},
 		{fileName: "invalid.json", fileContent: `{
@@ -340,8 +344,9 @@ func TestApp(t *testing.T) {
 			}
 			return []byte(test.fileContent), nil
 		}, []string{"ccjsonparser", test.fileName})
-		assert.Equal(t, test.err, err)
-		assert.Equal(t, test.result, result)
+		if !assert.Equal(t, test.err, err) || !assert.Equal(t, test.result, result) {
+			t.Log(test.fileContent)
+		}
 	}
 
 	result, err := app.App(func(name string) ([]byte, error) {

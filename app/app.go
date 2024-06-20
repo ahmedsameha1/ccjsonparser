@@ -177,6 +177,14 @@ func produceAReasonForInvalidation(fileContentString string) string {
 	if isALeadedPlusNumber(fileContentString) {
 		return invalid + "\nAn invalid number, there is a leading +"
 	}
+	if isAnArray(fileContentString) {
+		if isAnUnclosedArray(fileContentString) {
+			return invalid + "\nThis is an unclosed array"
+		}
+		if isAnArrayThatClosedAsAnObject(fileContentString) {
+			return invalid + "\nThis is an array that is closed as an object"
+		}
+	}
 	return invalid
 }
 
@@ -217,5 +225,20 @@ func isALeadedZeroNumber(fileContentString string) bool {
 
 func isALeadedPlusNumber(fileContentString string) bool {
 	regex := regexp.MustCompile(`(?s)\A\s*([+-]?\d{1}\.\d+([eE][-+]?)\d+|[+-]?[1-9]\d+\.\d+([eE][-+]?)\d+|[+-]?[1-9]\d*([eE][-+]?)\d+|[+-]?\d{1}\.\d+|[+-]?[1-9]\d+\.\d+|[+-]?[1-9]\d*)\s*\z`)
+	return regex.MatchString(fileContentString)
+}
+
+func isAnArray(fileContentString string) bool {
+	regex := regexp.MustCompile(`(?s)\A\s*\[.*\s*\z`)
+	return regex.MatchString(fileContentString)
+}
+
+func isAnUnclosedArray(fileContentString string) bool {
+	regex := regexp.MustCompile(`(?s)\A\s*\[[^]}]*\s*\z`)
+	return regex.MatchString(fileContentString)
+}
+
+func isAnArrayThatClosedAsAnObject(fileContentString string) bool {
+	regex := regexp.MustCompile(`(?s)\A\s*\[.*}\s*\z`)
 	return regex.MatchString(fileContentString)
 }
