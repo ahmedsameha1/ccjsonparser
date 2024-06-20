@@ -74,6 +74,10 @@ func TestApp(t *testing.T) {
 			err: errors.New("This is an invalid JSON\nThis is an unclosed array")},
 		{fileName: "invalid.json", fileContent: `["key", "value"}`, result: "",
 			err: errors.New("This is an invalid JSON\nThis is an array that is closed as an object")},
+		{fileName: "invalid.json", fileContent: `["key", "value",]`, result: "",
+			err: errors.New("This is an invalid JSON\nThis is an array that contains extra tail comma(s)")},
+		{fileName: "invalid.json", fileContent: `["key", "value",,]`, result: "",
+			err: errors.New("This is an invalid JSON\nThis is an array that contains extra tail comma(s)")},
 		{fileName: "invalid.json", fileContent: `{"key": "value",}`, result: "",
 			err: errors.New("This is an invalid JSON")},
 		{fileName: "invalid.json", fileContent: `{
