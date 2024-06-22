@@ -147,9 +147,11 @@ func TestInvalidCases(t *testing.T) {
 		ccjsonparserCommand.Stdout = &out
 		ccjsonparserCommand.Stderr = &errOut
 		err := ccjsonparserCommand.Run()
+		if !assert.Equal(t, test.errResult, errOut.String()) ||
+			!assert.Equal(t, "", out.String()) {
+			t.Log(test)
+		}
 		assert.Equal(t, 1, err.(*exec.ExitError).ExitCode())
-		assert.Equal(t, test.errResult, errOut.String())
-		assert.Equal(t, "", out.String())
 	}
 }
 

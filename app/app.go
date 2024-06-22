@@ -28,23 +28,24 @@ func App(readFile func(name string) ([]byte, error), args []string) (string, err
 	}
 	fileContentString := string(fileContentInByteArray)
 	validJSONregex := regexp.MustCompile(validJSONPattern)
-	if !validate(fileContentString, validJSONregex, 0) {
-		return "", errors.New(produceAReasonForInvalidation(fileContentString))
+	isValid, message := validate(fileContentString, validJSONregex, 0)
+	if !isValid {
+		return "", errors.New(message)
 	}
 	return "This is a valid JSON", nil
 }
 
-func validate(underValidationJson string, regex *regexp.Regexp, recursionCounter int) bool {
+func validate(underValidationJson string, regex *regexp.Regexp, recursionCounter int) (bool, string) {
 	if recursionCounter > 18 {
-		return false
+		return false, "This is an invalid JSON"
 	}
 	if !regex.MatchString(underValidationJson) {
-		return false
+		return false, produceAReasonForInvalidation(underValidationJson)
 	}
 	if containsInnerListsOrObjects(underValidationJson) {
 		return handleJsonWithInnerListsOrObjects(underValidationJson, regex, recursionCounter)
 	}
-	return true
+	return true, ""
 }
 
 func containsInnerListsOrObjects(stringContent string) bool {
@@ -59,14 +60,15 @@ func theWholeJsonIsAnObject(stringContent string) bool {
 	return startsWithCurlyBracketRegex.MatchString(stringContent)
 }
 
-func handleJsonWithInnerListsOrObjects(underValidationJson string, regex *regexp.Regexp, recursionCounter int) bool {
+func handleJsonWithInnerListsOrObjects(underValidationJson string, regex *regexp.Regexp, recursionCounter int) (bool, string) {
 	// Starts with {
 	if theWholeJsonIsAnObject(underValidationJson) {
 		innerString := removeTheOpenningBracketFromTheWholeJsonString(underValidationJson, "{")
 		innerObjectsIndices := getInnerObjects(innerString)
 		for _, value := range innerObjectsIndices {
-			if !validate(innerString[value[0]+1:value[1]-1], regex, recursionCounter+1) {
-				return false
+			isValid, message := validate(innerString[value[0]+1:value[1]-1], regex, recursionCounter+1)
+			if !isValid {
+				return false, message
 			}
 		}
 		// Starts with [
@@ -74,12 +76,13 @@ func handleJsonWithInnerListsOrObjects(underValidationJson string, regex *regexp
 		innerString := removeTheOpenningBracketFromTheWholeJsonString(underValidationJson, "[")
 		innerListsIndices := getInnerLists(innerString)
 		for _, value := range innerListsIndices {
-			if !validate(innerString[value[0]:value[1]-1], regex, recursionCounter+1) {
-				return false
+			isValid, message := validate(innerString[value[0]:value[1]-1], regex, recursionCounter+1)
+			if !isValid {
+				return false, message
 			}
 		}
 	}
-	return true
+	return true, ""
 }
 
 func removeTheOpenningBracketFromTheWholeJsonString(fileContentString, openning string) string {
