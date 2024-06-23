@@ -180,6 +180,9 @@ func produceAReasonForInvalidation(fileContentString string) string {
 	if isALeadedPlusNumber(fileContentString) {
 		return invalid + "\nAn invalid number, there is a leading +"
 	}
+	if isAnArrayThatSurroundedByInvalidBrackets(fileContentString) {
+		return invalid + "\nThis is an array that is surrounded by invalid \"][}{\""
+	}
 	if isAnArray(fileContentString) {
 		if isAnUnclosedArray(fileContentString) {
 			return invalid + "\nThis is an unclosed array"
@@ -259,5 +262,10 @@ func isAnArrayThatContainsExtraTailCommas(fileContentString string) bool {
 
 func isAnArrayThatContainsExtraAdvancingCommas(fileContentString string) bool {
 	regex := regexp.MustCompile(`(?s)\A\s*\[\s*(,\s*)+((\s*(null|true|false|-?\d{1}\.\d+([eE][-+]?)\d+|-?[1-9]\d+\.\d+([eE][-+]?)\d+|-?[1-9]\d*([eE][-+]?)\d+|-?\d{1}\.\d+|-?[1-9]\d+\.\d+|-?[1-9]\d*|"([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*"|\[[^][]*\]|{[^}{]*}|\[.*\[.*\].*\]|\{.*\{.*\}.*\}){1}\s*(,\s*)*)*)\]\s*\z`)
+	return regex.MatchString(fileContentString)
+}
+
+func isAnArrayThatSurroundedByInvalidBrackets(fileContentString string) bool {
+	regex := regexp.MustCompile(`(?s)\A\s*(([[\]{}]\s*)+` + outerSquareBrackets + `|` + outerSquareBrackets + `(\s*[[\]{}])+|([[\]{}]\s*)+` + outerSquareBrackets + `(\s*[[\]{}])+)\s*\z`)
 	return regex.MatchString(fileContentString)
 }
