@@ -183,6 +183,9 @@ func produceAReasonForInvalidation(fileContentString string) string {
 	if isAnArrayThatSurroundedByInvalidBrackets(fileContentString) {
 		return invalid + "\nThis is an array that is surrounded by invalid \"][}{\""
 	}
+	if isAnArrayThatSurroundedByInvalidCommas(fileContentString) {
+		return invalid + "\nThis is an array that is surrounded by invalid commas"
+	}
 	if isAnArray(fileContentString) {
 		if isAnUnclosedArray(fileContentString) {
 			return invalid + "\nThis is an unclosed array"
@@ -267,5 +270,10 @@ func isAnArrayThatContainsExtraAdvancingCommas(fileContentString string) bool {
 
 func isAnArrayThatSurroundedByInvalidBrackets(fileContentString string) bool {
 	regex := regexp.MustCompile(`(?s)\A\s*(([[\]{}]\s*)+` + outerSquareBrackets + `|` + outerSquareBrackets + `(\s*[[\]{}])+|([[\]{}]\s*)+` + outerSquareBrackets + `(\s*[[\]{}])+)\s*\z`)
+	return regex.MatchString(fileContentString)
+}
+
+func isAnArrayThatSurroundedByInvalidCommas(fileContentString string) bool {
+	regex := regexp.MustCompile(`(?s)\A\s*((,\s*)+` + outerSquareBrackets + `|` + outerSquareBrackets + `(\s*,)+|(,\s*)+` + outerSquareBrackets + `(\s*,)+)\s*\z`)
 	return regex.MatchString(fileContentString)
 }
