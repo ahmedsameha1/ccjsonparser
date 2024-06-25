@@ -7,7 +7,7 @@ import (
 )
 
 const strinG string = `"([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*"`
-const number string = `-?\d{1}\.\d+([eE][-+]?)\d+|-?[1-9]\d+\.\d+([eE][-+]?)\d+|-?[1-9]\d*([eE][-+]?)\d+|-?\d{1}\.\d+|-?[1-9]\d+\.\d+|-?[1-9]\d*`
+const number string = `-?\d{1}\.\d+([eE][-+]?)\d+|-?[1-9]\d+\.\d+([eE][-+]?)\d+|-?[1-9]\d*([eE][-+]?)\d+|-?\d{1}\.\d+|-?[1-9]\d+\.\d+|-?[1-9]\d*|-?0([eE][-+]?\d+){0,1}`
 const innerBrackets string = `\[[^][]*\]|{[^}{]*}|\[.*\[.*\].*\]|\{.*\{.*\}.*\}`
 const stringValues string = `|` + strinG + `|`
 const innerElement string = `\s*(null|true|false|` + number + stringValues + innerBrackets + `){1}`
@@ -159,6 +159,9 @@ func produceAReasonForInvalidation(fileContentString string) string {
 	if isThereNoObjectOrArray(fileContentString) {
 		return invalid + "\nMUST be an object, array, number, or string, or false or null or true"
 	}
+	if isALeadedZeroNumber(fileContentString) {
+		return invalid + "\nAn invalid number, there is a leading zero"
+	}
 	if multipleValuesOutsidAnArray(fileContentString) {
 		return invalid + "\nMultiple values outside of an array"
 	}
@@ -173,9 +176,6 @@ func produceAReasonForInvalidation(fileContentString string) string {
 	}
 	if isTrue(fileContentString) {
 		return invalid + "\nShould be \"true\""
-	}
-	if isALeadedZeroNumber(fileContentString) {
-		return invalid + "\nAn invalid number, there is a leading zero"
 	}
 	if isALeadedPlusNumber(fileContentString) {
 		return invalid + "\nAn invalid number, there is a leading +"

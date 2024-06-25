@@ -28,6 +28,8 @@ func TestValidCases(t *testing.T) {
 		"tests/step3/valid8.json",
 		"tests/step3/valid9.json",
 		"tests/step3/valid10.json",
+		"tests/step3/valid11.json",
+		"tests/step3/valid12.json",
 		"tests/step4/valid.json",
 		"tests/step4/valid2.json",
 		"tests/step4/valid3.json",
@@ -44,9 +46,11 @@ func TestValidCases(t *testing.T) {
 		ccjsonparserCommand.Stdout = &out
 		ccjsonparserCommand.Stderr = &errOut
 		err := ccjsonparserCommand.Run()
-		assert.NoError(t, err)
-		assert.Equal(t, "This is a valid JSON\n", out.String())
-		assert.Equal(t, "", errOut.String())
+		if !assert.NoError(t, err) ||
+			!assert.Equal(t, "This is a valid JSON\n", out.String()) ||
+			!assert.Equal(t, "", errOut.String()) {
+			t.Log(filePath)
+		}
 	}
 }
 
