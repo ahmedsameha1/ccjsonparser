@@ -183,6 +183,8 @@ func TestInvalidCases(t *testing.T) {
 			errResult: "This is an invalid JSON\n"},
 		{filePath: "tests/step4/invalid5.json",
 			errResult: "This is an invalid JSON\n"},
+		{filePath: "tests/step4/invalid6.json",
+			errResult: "This is an invalid JSON\n"},
 	}
 
 	for _, test := range invalidJSONTests {

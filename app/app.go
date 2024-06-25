@@ -49,13 +49,13 @@ func validate(underValidationJson string, regex *regexp.Regexp, recursionCounter
 }
 
 func containsInnerListsOrObjects(stringContent string) bool {
-	innerBracketCheckerPattern := `(?s){(\s*("([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*")\s*:\s*(null|true|false|-?\d{1}\.\d+([eE][-+]?)\d+|-?[1-9]\d+\.\d+([eE][-+]?)\d+|-?[1-9]\d*([eE][-+]?)\d+|-?\d{1}\.\d+|-?[1-9]\d+\.\d+|-?[1-9]\d*|"([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*"){1}\s*,\s*)*("([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*")\s*:\s*[{\[]|\[(\s*(null|true|false|-?\d{1}\.\d+([eE][-+]?)\d+|-?[1-9]\d+\.\d+([eE][-+]?)\d+|-?[1-9]\d*([eE][-+]?)\d+|-?\d{1}\.\d+|-?[1-9]\d+\.\d+|-?[1-9]\d*|"([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*"){1}\s*,\s*)*[{\[]`
+	innerBracketCheckerPattern := `(?s){\s*(\s*("([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*")\s*:\s*(null|true|false|-?\d{1}\.\d+([eE][-+]?)\d+|-?[1-9]\d+\.\d+([eE][-+]?)\d+|-?[1-9]\d*([eE][-+]?)\d+|-?\d{1}\.\d+|-?[1-9]\d+\.\d+|-?[1-9]\d*|"([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*"){1}\s*,\s*)*("([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*")\s*:\s*[{\[]|\[(\s*(null|true|false|-?\d{1}\.\d+([eE][-+]?)\d+|-?[1-9]\d+\.\d+([eE][-+]?)\d+|-?[1-9]\d*([eE][-+]?)\d+|-?\d{1}\.\d+|-?[1-9]\d+\.\d+|-?[1-9]\d*|"([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*"){1}\s*,\s*)*[{\[]`
 	innerBracketCheckerRegex := regexp.MustCompile(innerBracketCheckerPattern)
 	return innerBracketCheckerRegex.MatchString(stringContent)
 }
 
 func theWholeJsonIsAnObject(stringContent string) bool {
-	startWithCurlyBracketPattern := `(?s){(\s*("([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*")\s*:\s*(null|true|false|-?\d{1}\.\d+([eE][-+]?)\d+|-?[1-9]\d+\.\d+([eE][-+]?)\d+|-?[1-9]\d*([eE][-+]?)\d+|-?\d{1}\.\d+|-?[1-9]\d+\.\d+|-?[1-9]\d*|"([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*"){1}\s*,\s*)*("([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*")\s*:\s*[{\[]`
+	startWithCurlyBracketPattern := `(?s){\s*(\s*("([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*")\s*:\s*(null|true|false|-?\d{1}\.\d+([eE][-+]?)\d+|-?[1-9]\d+\.\d+([eE][-+]?)\d+|-?[1-9]\d*([eE][-+]?)\d+|-?\d{1}\.\d+|-?[1-9]\d+\.\d+|-?[1-9]\d*|"([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*"){1}\s*,\s*)*("([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*")\s*:\s*[{\[]`
 	startsWithCurlyBracketRegex := regexp.MustCompile(startWithCurlyBracketPattern)
 	return startsWithCurlyBracketRegex.MatchString(stringContent)
 }
@@ -110,24 +110,27 @@ func removeObjectsInStringValues(innerString string, indices [][]int) [][]int {
 	stringValuesPattern := `:\s*".*"\s*[,}]`
 	stringValuesRegex := regexp.MustCompile(stringValuesPattern)
 	stringValuesIndices := stringValuesRegex.FindAllIndex([]byte(innerString), -1)
-	if indices[len(indices)-1][0] < (stringValuesIndices[0][1]-1) ||
-		indices[0][0] > (stringValuesIndices[len(stringValuesIndices)-1][1]) {
-		return indices
-	}
-	var revisedIndices [][]int = make([][]int, 0)
-	for _, v := range indices {
-		found := false
-		for _, v2 := range stringValuesIndices {
-			if v[0] > v2[0] && v[1] < v2[1]-1 {
-				found = true
-				break
+	if len(stringValuesIndices) > 0 {
+		if indices[len(indices)-1][0] < (stringValuesIndices[0][1]-1) ||
+			indices[0][0] > (stringValuesIndices[len(stringValuesIndices)-1][1]) {
+			return indices
+		}
+		var revisedIndices [][]int = make([][]int, 0)
+		for _, v := range indices {
+			found := false
+			for _, v2 := range stringValuesIndices {
+				if v[0] > v2[0] && v[1] < v2[1]-1 {
+					found = true
+					break
+				}
+			}
+			if !found {
+				revisedIndices = append(revisedIndices, v)
 			}
 		}
-		if !found {
-			revisedIndices = append(revisedIndices, v)
-		}
+		return revisedIndices
 	}
-	return revisedIndices
+	return indices
 }
 
 func removeListsInStringValues(innerString string, indices [][]int) [][]int {
