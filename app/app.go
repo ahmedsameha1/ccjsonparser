@@ -99,7 +99,7 @@ func getInnerObjectsOrArraysInObjects(innerString string) [][]int {
 }
 
 func getInnerObjectsOrArraysInArrays(innerString string) [][]int {
-	innerObjectsOrArraysPattern := `\s*(\[[^][]*\]|{[^}{]*}|\[\s*".*"\s*\]|{\s*".*"\s*}|\[.*\[.*\].*\]|\{.*\{.*\}.*\})\s*[,\]]`
+	innerObjectsOrArraysPattern := `(?s)\s*((\[\s*)+.*?(\s*\],?)+|{[^}{]*}|{\s*".*"\s*}|\{.*\{.*\}.*\})\s*[,\]]`
 	innerObjectsOrArraysRegex := regexp.MustCompile(innerObjectsOrArraysPattern)
 	innerObjectsOrArrays := innerObjectsOrArraysRegex.FindAllIndex([]byte(innerString), -1)
 	innerObjectsOrArrays = removeArraysInStringValues(innerString, innerObjectsOrArrays)
