@@ -6,20 +6,24 @@ import (
 	"strings"
 )
 
-const strinG string = `"([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/|\\u)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*"`
-const number string = `-?\d{1}\.\d+([eE][-+]?)\d+|-?[1-9]\d+\.\d+([eE][-+]?)\d+|-?[1-9]\d*([eE][-+]?)\d+|-?\d{1}\.\d+|-?[1-9]\d+\.\d+|-?[1-9]\d*|-?0([eE][-+]?\d+){0,1}`
-const innerBrackets string = `\[[^][]*\]|{[^}{]*}|\[.*\[.*\].*\]|\{.*\{.*\}.*\}`
-const stringValues string = `|` + strinG + `|`
-const innerElement string = `\s*(null|true|false|` + number + stringValues + innerBrackets + `){1}`
-const lastElementInOuterSqurareBrackets string = `(` + innerElement + `\s*)`
-const multipleElmentsInOuterSquareBrackets string = `(` + innerElement + `\s*,\s*)*`
-const outerSquareBrackets string = `\[\s*(` + multipleElmentsInOuterSquareBrackets + lastElementInOuterSqurareBrackets + `{1}){0,1}\]`
-const objectKey string = `(` + strinG + `)`
-const lastElementInOuterCurlyBrackets string = `(\s*` + objectKey + `\s*:` + innerElement + `\s*)`
-const multipleElmentsInOuterCurlyBrackets string = `(\s*` + objectKey + `\s*:` + innerElement + `\s*,\s*)*`
-const outerCurlyBrakets string = `{\s*(` + multipleElmentsInOuterCurlyBrackets + lastElementInOuterCurlyBrackets + `{1}){0,1}}`
-const validJSONPattern string = `(?s)\A\s*(` + strinG + `|` + number + `|false|null|true|` + outerSquareBrackets + `|` +
-	outerCurlyBrakets + `){1}\s*\z`
+const (
+	strinG                               string = `"([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/|\\u)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*"`
+	number                               string = `-?\d{1}\.\d+([eE][-+]?)\d+|-?[1-9]\d+\.\d+([eE][-+]?)\d+|-?[1-9]\d*([eE][-+]?)\d+|-?\d{1}\.\d+|-?[1-9]\d+\.\d+|-?[1-9]\d*|-?0([eE][-+]?\d+){0,1}`
+	innerBrackets                        string = `\[[^][]*\]|{[^}{]*}|\[.*\[.*\].*\]|\{.*\{.*\}.*\}`
+	stringValues                         string = `|` + strinG + `|`
+	innerElement                         string = `\s*(null|true|false|` + number + stringValues + innerBrackets + `){1}`
+	lastElementInOuterSqurareBrackets    string = `(` + innerElement + `\s*)`
+	multipleElmentsInOuterSquareBrackets string = `(` + innerElement + `\s*,\s*)*`
+	outerSquareBrackets                  string = `\[\s*(` + multipleElmentsInOuterSquareBrackets + lastElementInOuterSqurareBrackets + `{1}){0,1}\]`
+	objectKey                            string = `(` + strinG + `)`
+	lastElementInOuterCurlyBrackets      string = `(\s*` + objectKey + `\s*:` + innerElement + `\s*)`
+	multipleElmentsInOuterCurlyBrackets  string = `(\s*` + objectKey + `\s*:` + innerElement + `\s*,\s*)*`
+	outerCurlyBrakets                    string = `{\s*(` + multipleElmentsInOuterCurlyBrackets + lastElementInOuterCurlyBrackets + `{1}){0,1}}`
+	validJSONPattern                     string = `(?s)\A\s*(` + strinG + `|` + number + `|false|null|true|` + outerSquareBrackets + `|` +
+		outerCurlyBrakets + `){1}\s*\z`
+)
+
+var validJSONregex *regexp.Regexp = regexp.MustCompile(validJSONPattern)
 
 func App(readFile func(name string) ([]byte, error), args []string) (string, error) {
 	fileContentInByteArray, err := readFile(args[1])
@@ -27,23 +31,22 @@ func App(readFile func(name string) ([]byte, error), args []string) (string, err
 		return "", err
 	}
 	fileContentString := string(fileContentInByteArray)
-	validJSONregex := regexp.MustCompile(validJSONPattern)
-	isValid, message := validate(fileContentString, validJSONregex, 0)
+	isValid, message := validate(fileContentString, 0)
 	if !isValid {
 		return "", errors.New(message)
 	}
 	return "This is a valid JSON", nil
 }
 
-func validate(underValidationJson string, regex *regexp.Regexp, recursionCounter int) (bool, string) {
+func validate(underValidationJson string, recursionCounter int) (bool, string) {
 	if recursionCounter > 18 {
 		return false, "This is an invalid JSON"
 	}
-	if !regex.MatchString(underValidationJson) {
+	if !validJSONregex.MatchString(underValidationJson) {
 		return false, produceAReasonForInvalidation(underValidationJson)
 	}
 	if containsInnerObjectsOrArrays(underValidationJson) {
-		return handleJsonWithInnerObjectsOrArrays(underValidationJson, regex, recursionCounter)
+		return handleJsonWithInnerObjectsOrArrays(underValidationJson, recursionCounter)
 	}
 	return true, ""
 }
@@ -60,13 +63,13 @@ func isTheWholeJsonAnObject(stringContent string) bool {
 	return startsWithCurlyBracketRegex.MatchString(stringContent)
 }
 
-func handleJsonWithInnerObjectsOrArrays(underValidationJson string, regex *regexp.Regexp, recursionCounter int) (bool, string) {
+func handleJsonWithInnerObjectsOrArrays(underValidationJson string, recursionCounter int) (bool, string) {
 	// Starts with {
 	if isTheWholeJsonAnObject(underValidationJson) {
 		innerString := removeTheOpenningBracketFromTheWholeJsonString(underValidationJson, "{")
 		innerObjectsOrArraysIndices := getInnerObjectsOrArraysInObjects(innerString)
 		for _, value := range innerObjectsOrArraysIndices {
-			isValid, message := validate(innerString[value[0]+1:value[1]-1], regex, recursionCounter+1)
+			isValid, message := validate(innerString[value[0]+1:value[1]-1], recursionCounter+1)
 			if !isValid {
 				return false, message
 			}
@@ -76,7 +79,7 @@ func handleJsonWithInnerObjectsOrArrays(underValidationJson string, regex *regex
 		innerString := removeTheOpenningBracketFromTheWholeJsonString(underValidationJson, "[")
 		innerObjectsOrArraysIndices := getInnerObjectsOrArraysInArrays(innerString)
 		for _, value := range innerObjectsOrArraysIndices {
-			isValid, message := validate(innerString[value[0]:value[1]-1], regex, recursionCounter+1)
+			isValid, message := validate(innerString[value[0]:value[1]-1], recursionCounter+1)
 			if !isValid {
 				return false, message
 			}

@@ -441,6 +441,16 @@ func TestApp(t *testing.T) {
 			 ]
 		   }`, result: "",
 			err: errors.New("This is an invalid JSON")},
+		{fileName: "invalid.json", fileContent: `{
+			"batter":
+			  [
+				{ "id": "1001", "type": "Regular" },
+				{ "id": "1002", "type": "Chocolate" },
+				{ "id": "1003", "type": "Blueberry" },
+				{ "id": "1004" "type": "Devil's Food" }
+			  ]
+		  }`, result: "",
+			err: errors.New("This is an invalid JSON")},
 	}
 
 	for _, test := range tests {
