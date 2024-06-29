@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-const strinG string = `"([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*"`
+const strinG string = `"([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/|\\u)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*"`
 const number string = `-?\d{1}\.\d+([eE][-+]?)\d+|-?[1-9]\d+\.\d+([eE][-+]?)\d+|-?[1-9]\d*([eE][-+]?)\d+|-?\d{1}\.\d+|-?[1-9]\d+\.\d+|-?[1-9]\d*|-?0([eE][-+]?\d+){0,1}`
 const innerBrackets string = `\[[^][]*\]|{[^}{]*}|\[.*\[.*\].*\]|\{.*\{.*\}.*\}`
 const stringValues string = `|` + strinG + `|`
@@ -55,7 +55,7 @@ func containsInnerObjectsOrArrays(stringContent string) bool {
 }
 
 func isTheWholeJsonAnObject(stringContent string) bool {
-	startWithCurlyBracketPattern := `(?s){\s*(\s*("([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*")\s*:\s*(null|true|false|-?\d{1}\.\d+([eE][-+]?)\d+|-?[1-9]\d+\.\d+([eE][-+]?)\d+|-?[1-9]\d*([eE][-+]?)\d+|-?\d{1}\.\d+|-?[1-9]\d+\.\d+|-?[1-9]\d*|"([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*"){1}\s*,\s*)*("([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*")\s*:\s*[{\[]`
+	startWithCurlyBracketPattern := `(?s)\A\s*{\s*(\s*("([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*")\s*:\s*(null|true|false|-?\d{1}\.\d+([eE][-+]?)\d+|-?[1-9]\d+\.\d+([eE][-+]?)\d+|-?[1-9]\d*([eE][-+]?)\d+|-?\d{1}\.\d+|-?[1-9]\d+\.\d+|-?[1-9]\d*|"([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*"){1}\s*,\s*)*("([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*")\s*:\s*[{\[]`
 	startsWithCurlyBracketRegex := regexp.MustCompile(startWithCurlyBracketPattern)
 	return startsWithCurlyBracketRegex.MatchString(stringContent)
 }
@@ -91,7 +91,7 @@ func removeTheOpenningBracketFromTheWholeJsonString(fileContentString, openning 
 }
 
 func getInnerObjectsOrArraysInObjects(innerString string) [][]int {
-	innerObjectsOrArraysPattern := `:\s*(\[[^][]*\]|{[^}{]*}|\[\s*".*"\s*\]|{\s*".*"\s*}|\[.*\[.*\].*\]|\{.*\{.*\}.*\})\s*[,}]`
+	innerObjectsOrArraysPattern := `(?s):\s*((\{\s*)+.*?(\s*\},?)+|(\[\s*)+.*?(\s*\],?)+)\s*[,\}]`
 	innerObjectsOrArraysRegex := regexp.MustCompile(innerObjectsOrArraysPattern)
 	innerObjectsOrArrays := innerObjectsOrArraysRegex.FindAllIndex([]byte(innerString), -1)
 	innerObjectsOrArrays = removeObjectsInStringValues(innerString, innerObjectsOrArrays)
