@@ -66,10 +66,9 @@ func isTheWholeJsonAnObject(stringContent string) bool {
 func handleJsonWithInnerObjectsOrArrays(underValidationJson string, recursionCounter int) (bool, string) {
 	// Starts with {
 	if isTheWholeJsonAnObject(underValidationJson) {
-		innerString := removeTheOpenningBracketFromTheWholeJsonString(underValidationJson, "{")
-		innerObjectsOrArraysIndices := getInnerObjectsOrArraysInObjects(innerString)
+		innerObjectsOrArraysIndices := getInnerObjectsOrArraysInObjects(underValidationJson)
 		for _, value := range innerObjectsOrArraysIndices {
-			isValid, message := validate(innerString[value[0]+1:value[1]-1], recursionCounter+1)
+			isValid, message := validate(value, recursionCounter+1)
 			if !isValid {
 				return false, message
 			}
@@ -93,11 +92,14 @@ func removeTheOpenningBracketFromTheWholeJsonString(fileContentString, openning 
 	return fileContentString[firstSquareBracketIndex+1:]
 }
 
-func getInnerObjectsOrArraysInObjects(innerString string) [][]int {
-	innerObjectsOrArraysPattern := `(?s):\s*((\{\s*)+.*?(\s*\},?)+|(\[\s*)+.*?(\s*\],?)+)\s*[,\}]`
+func getInnerObjectsOrArraysInObjects(innerString string) []string {
+	innerObjectsOrArraysPattern := `(?s)(?::\s*)(\{.*?\}|\[.*?\])(?:\s*(,\s*"|([\}\]]\s*)*[\}\]]\s*,"|\}\s*\z))`
 	innerObjectsOrArraysRegex := regexp.MustCompile(innerObjectsOrArraysPattern)
-	innerObjectsOrArrays := innerObjectsOrArraysRegex.FindAllIndex([]byte(innerString), -1)
-	innerObjectsOrArrays = removeObjectsInStringValues(innerString, innerObjectsOrArrays)
+	innerObjectsOrArraysSurrounded := innerObjectsOrArraysRegex.FindAllStringSubmatch(innerString, -1)
+	innerObjectsOrArrays := make([]string, 0)
+	for _, v := range innerObjectsOrArraysSurrounded {
+		innerObjectsOrArrays = append(innerObjectsOrArrays, v[1])
+	}
 	return innerObjectsOrArrays
 }
 
@@ -109,6 +111,7 @@ func getInnerObjectsOrArraysInArrays(innerString string) [][]int {
 	return innerObjectsOrArrays
 }
 
+/*
 func removeObjectsInStringValues(innerString string, indices [][]int) [][]int {
 	stringValuesPattern := `:\s*".*"\s*[,}]`
 	stringValuesRegex := regexp.MustCompile(stringValuesPattern)
@@ -135,6 +138,7 @@ func removeObjectsInStringValues(innerString string, indices [][]int) [][]int {
 	}
 	return indices
 }
+*/
 
 func removeArraysInStringValues(innerString string, indices [][]int) [][]int {
 	stringValuesPattern := `\s*".*"\s*[,\]]`
@@ -286,3 +290,15 @@ func isAnArrayThatSurroundedByInvalidCommas(fileContentString string) bool {
 	regex := regexp.MustCompile(`(?s)\A\s*((,\s*)+` + outerSquareBrackets + `|` + outerSquareBrackets + `(\s*,)+|(,\s*)+` + outerSquareBrackets + `(\s*,)+)\s*\z`)
 	return regex.MatchString(fileContentString)
 }
+
+//(?s):(\s*[\{]\s*)+(\s*("([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/|\\u)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*")\s*:\s*(null|true|false|-?\d{1}\.\d+([eE][-+]?)\d+|-?[1-9]\d+\.\d+([eE][-+]?)\d+|-?[1-9]\d*([eE][-+]?)\d+|-?\d{1}\.\d+|-?[1-9]\d+\.\d+|-?[1-9]\d*|-?0([eE][-+]?\d+){0,1}|"([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/|\\u)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*"|\[[^][]*\]|{[^}{]*}|\[.*\[.*\].*\]|\{.*\{.*\}.*\}){1}\s*)(\s*[\}]\s*),
+
+//`:\s*{`       `}\s*(,\s*"|(}\s*)*}\s*)`       `(?s):\s*{.*?}\s*(,\s*"|(}\s*)*}\s*,?)`            `(?s):\s*({.*?}\s*|\[.*?\])\s*(,\s*"|(}\s*)*}\s*,?)`
+
+//(?s)(?:\s*("([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/|\\u)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*")\s*:\s*)(\[.*?\])(?:\s*,\s*".*?"\s*:|(\]\s*)*\]\s*)
+
+//(?s)(?::\s*)({.*?}\s*|\[.*?\])(?:\s*(,\s*".*?"|(}\s*)*}\s*,".*?"))
+
+//(?s):\s*({.*?}|\[.*?\])\s*(,\s*"|(}\s*)*}\s*,\s*"|}\s*\z)
+
+//(?s)(?::\s*)(\{.*?\}|\[.*?\])(?:\s*(,\s*".*?"|([\}\]]\s*)*}\s*,"|[\}\]]\s*\z))

@@ -1,0 +1,75 @@
+{
+    "id": "0001",
+    "type": "donut",
+    "name": "Cake",
+    "ppu": 0.55,
+    "batters":
+      {
+        "batter":
+          [
+            { "id": "1001", "type": "Regular" },
+            { "id": "1002", "type": "Chocolate" },
+            { "id": "1003", "type": "Blueberry" },
+            { "id": "1004", "type": "Devil's Food" }
+          ]
+      },
+    "topping":
+      [
+        { "id": "5001", "type": "None" },
+        { "id": "5002", "type": "Glazed" },
+        { "id": "5005", "type": "Sugar" },
+        { "id": "5007", "type": "Powdered Sugar" },
+        { "id": "5006", "type": "Chocolate with Sprinkles" },
+        { "id": "5003", "type": "Chocolate" },
+        { "id": "5004", "type": "Maple" }
+      ],
+    "complex_nested_structure": {
+      "level1": {
+        "level2": {
+          "level3": {
+            "level4": {
+              "level5": {
+                "data": [1, 2, 3, 4, 5],
+                "object": {
+                  "key1": "value1",
+                  "key2": "value2",
+                  "key3": {
+                    "subkey1": [
+                      {"id": 1, "name": "Item 1"},
+                      {"id": 2, "name": "Item 2"},
+                      {"id": 3, "name": "Item 3"}
+                    ],
+                    "subkey2": {
+                      "deepkey1": "deepvalue1",
+                      "deepkey2": "deepvalue2"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "large_array": [
+      {"index": 0, "value": "Item 0"},
+      {"index": 1, "value": "Item 1"},
+      {"index": 2, "value": "Item 2"}
+    ],
+    "string_with_escapes": "This string has escapes: \"\\\b\f\n\r\t",
+    "unicode_string": "Unicode characters: 日本語 🌟 Русский",
+    "boolean_array": [
+      true, false, true, false, true, false, true, false, true, false
+    ],
+    "null_array": [
+      null, null, null, null, null, null, null, null, null, null
+    ],
+    "mixed_array": [
+      1, "string", true, null, {"key": "value"}, [1, 2, 3],
+      2, "another string", false, null, {"another_key": "another_value"}, [4, 5, 6]
+    ],
+    "deep_nesting": [[[[[[[[[{"key": "value"}]]]]]]]]],
+    "large_number": 1234567890123456789,
+    "small_number": 0.00000000000000001,
+    "scientific_notation": 1.23e+50
+  }
