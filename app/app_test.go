@@ -382,6 +382,10 @@ func TestApp(t *testing.T) {
 			"key-l": ["list value"]
 		  }`, result: "",
 			err: errors.New("This is an invalid JSON")},
+		{fileName: "invalid.json", fileContent: `[[[[[[[[[[[[[[77]]]]]]]]]`, result: "",
+			err: errors.New("This is an invalid JSON\nThis is an array that is surrounded by invalid \"][}{\"")},
+		{fileName: "invalid.json", fileContent: `[[[[[[[[["hi"]]]]]]]]]]]]`, result: "",
+			err: errors.New("This is an invalid JSON\nThis is an array that is surrounded by invalid \"][}{\"")},
 		{fileName: "valid.json", fileContent: `{
 			"key": "value",
 			"key-n": 101,

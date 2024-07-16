@@ -36,7 +36,7 @@ func TestValidCases(t *testing.T) {
 		"tests/step4/valid4.json",
 		"tests/step4/valid5.json",
 		"tests/step4/valid6.json",
-		"tests/huge_json/valid2.json",
+		"tests/huge_json/valid.json",
 	}
 
 	for _, filePath := range validJSONTests {
@@ -195,6 +195,12 @@ func TestInvalidCases(t *testing.T) {
 		{filePath: "tests/step4/invalid10.json",
 			errResult: "This is an invalid JSON\n"},
 		{filePath: "tests/step4/invalid11.json",
+			errResult: "This is an invalid JSON\n"},
+		{filePath: "tests/step4/invalid12.json",
+			errResult: "This is an invalid JSON\nThis is an array that is surrounded by invalid \"][}{\"\n"},
+		{filePath: "tests/step4/invalid13.json",
+			errResult: "This is an invalid JSON\nThis is an array that is surrounded by invalid \"][}{\"\n"},
+		{filePath: "tests/huge_json/invalid.json",
 			errResult: "This is an invalid JSON\n"},
 		{filePath: "tests/huge_json/invalid2.json",
 			errResult: "This is an invalid JSON\n"},

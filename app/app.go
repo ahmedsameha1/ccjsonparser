@@ -3,7 +3,6 @@ package app
 import (
 	"errors"
 	"regexp"
-	"strings"
 )
 
 const (
@@ -31,119 +30,56 @@ func App(readFile func(name string) ([]byte, error), args []string) (string, err
 		return "", err
 	}
 	fileContentString := string(fileContentInByteArray)
-	isValid, message := validate(fileContentString, 0)
-	if !isValid {
-		return "", errors.New(message)
+	if !validJSONregex.MatchString(fileContentString) {
+		return "", errors.New(produceAReasonForInvalidation(fileContentString))
+	}
+	bracketsIndices := getBracketsIndices(fileContentString)
+	if len(bracketsIndices) > 2 { // Becuase we should not count start and end brackets of the json
+		return handleInnerBrackets(fileContentString, bracketsIndices)
 	}
 	return "This is a valid JSON", nil
 }
 
-func validate(underValidationJson string, recursionCounter int) (bool, string) {
-	if recursionCounter > 18 {
-		return false, "This is an invalid JSON"
+func getBracketsIndices(stringContent string) [][]int {
+	bracketsRegex := regexp.MustCompile(`\{|\}|\[|\]`)
+	bracketsIndices := bracketsRegex.FindAllStringIndex(stringContent, -1)
+	if len(bracketsIndices) > 0 {
+		bracketsIndices = removeBracketsThatAreInStrings(stringContent, bracketsIndices)
 	}
-	if !validJSONregex.MatchString(underValidationJson) {
-		return false, produceAReasonForInvalidation(underValidationJson)
-	}
-	if containsInnerObjectsOrArrays(underValidationJson) {
-		return handleJsonWithInnerObjectsOrArrays(underValidationJson, recursionCounter)
-	}
-	return true, ""
+	return bracketsIndices
 }
 
-func containsInnerObjectsOrArrays(stringContent string) bool {
-	innerBracketCheckerPattern := `(?s){\s*(\s*("([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*")\s*:\s*(null|true|false|-?\d{1}\.\d+([eE][-+]?)\d+|-?[1-9]\d+\.\d+([eE][-+]?)\d+|-?[1-9]\d*([eE][-+]?)\d+|-?\d{1}\.\d+|-?[1-9]\d+\.\d+|-?[1-9]\d*|"([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*"){1}\s*,\s*)*("([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*")\s*:\s*[{\[]|\[\s*(\s*(null|true|false|-?\d{1}\.\d+([eE][-+]?)\d+|-?[1-9]\d+\.\d+([eE][-+]?)\d+|-?[1-9]\d*([eE][-+]?)\d+|-?\d{1}\.\d+|-?[1-9]\d+\.\d+|-?[1-9]\d*|"([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*"){1}\s*,\s*)*[{\[]`
-	innerBracketCheckerRegex := regexp.MustCompile(innerBracketCheckerPattern)
-	return innerBracketCheckerRegex.MatchString(stringContent)
-}
-
-func isTheWholeJsonAnObject(stringContent string) bool {
-	startWithCurlyBracketPattern := `(?s)\A\s*{\s*(\s*("([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*")\s*:\s*(null|true|false|-?\d{1}\.\d+([eE][-+]?)\d+|-?[1-9]\d+\.\d+([eE][-+]?)\d+|-?[1-9]\d*([eE][-+]?)\d+|-?\d{1}\.\d+|-?[1-9]\d+\.\d+|-?[1-9]\d*|"([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*"){1}\s*,\s*)*("([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*")\s*:\s*[{\[]`
-	startsWithCurlyBracketRegex := regexp.MustCompile(startWithCurlyBracketPattern)
-	return startsWithCurlyBracketRegex.MatchString(stringContent)
-}
-
-func handleJsonWithInnerObjectsOrArrays(underValidationJson string, recursionCounter int) (bool, string) {
-	// Starts with {
-	if isTheWholeJsonAnObject(underValidationJson) {
-		innerObjectsOrArraysIndices := getInnerObjectsOrArraysInObjects(underValidationJson)
-		for _, value := range innerObjectsOrArraysIndices {
-			isValid, message := validate(value, recursionCounter+1)
-			if !isValid {
-				return false, message
-			}
-		}
-		// Starts with [
-	} else {
-		innerString := removeTheOpenningBracketFromTheWholeJsonString(underValidationJson, "[")
-		innerObjectsOrArraysIndices := getInnerObjectsOrArraysInArrays(innerString)
-		for _, value := range innerObjectsOrArraysIndices {
-			isValid, message := validate(innerString[value[0]:value[1]-1], recursionCounter+1)
-			if !isValid {
-				return false, message
-			}
-		}
-	}
-	return true, ""
-}
-
-func removeTheOpenningBracketFromTheWholeJsonString(fileContentString, openning string) string {
-	firstSquareBracketIndex := strings.Index(fileContentString, openning)
-	return fileContentString[firstSquareBracketIndex+1:]
-}
-
-func getInnerObjectsOrArraysInObjects(innerString string) []string {
-	innerObjectsOrArraysPattern := `(?s)(?::\s*)(\{.*?\}|\[.*?\])(?:\s*(,\s*"|([\}\]]\s*)*[\}\]]\s*,"|\}\s*\z))`
-	innerObjectsOrArraysRegex := regexp.MustCompile(innerObjectsOrArraysPattern)
-	innerObjectsOrArraysSurrounded := innerObjectsOrArraysRegex.FindAllStringSubmatch(innerString, -1)
-	innerObjectsOrArrays := make([]string, 0)
-	for _, v := range innerObjectsOrArraysSurrounded {
-		innerObjectsOrArrays = append(innerObjectsOrArrays, v[1])
-	}
-	return innerObjectsOrArrays
-}
-
-func getInnerObjectsOrArraysInArrays(innerString string) [][]int {
-	innerObjectsOrArraysPattern := `(?s)\s*((\[\s*)+.*?(\s*\],?)+|{[^}{]*}|{\s*".*"\s*}|\{.*\{.*\}.*\})\s*[,\]]`
-	innerObjectsOrArraysRegex := regexp.MustCompile(innerObjectsOrArraysPattern)
-	innerObjectsOrArrays := innerObjectsOrArraysRegex.FindAllIndex([]byte(innerString), -1)
-	innerObjectsOrArrays = removeArraysInStringValues(innerString, innerObjectsOrArrays)
-	return innerObjectsOrArrays
-}
-
-/*
-func removeObjectsInStringValues(innerString string, indices [][]int) [][]int {
-	stringValuesPattern := `:\s*".*"\s*[,}]`
-	stringValuesRegex := regexp.MustCompile(stringValuesPattern)
-	stringValuesIndices := stringValuesRegex.FindAllIndex([]byte(innerString), -1)
-	if len(stringValuesIndices) > 0 {
-		if indices[len(indices)-1][0] < (stringValuesIndices[0][1]-1) ||
-			indices[0][0] > (stringValuesIndices[len(stringValuesIndices)-1][1]) {
-			return indices
-		}
-		var revisedIndices [][]int = make([][]int, 0)
-		for _, v := range indices {
-			found := false
-			for _, v2 := range stringValuesIndices {
-				if v[0] > v2[0] && v[1] < v2[1]-1 {
-					found = true
-					break
+func handleInnerBrackets(innerString string, bracketsIndices [][]int) (string, error) {
+	OpenningBracketsIndexes := make([]int, 0)
+	for k := range bracketsIndices {
+		if k != 0 && k != len(bracketsIndices)-1 {
+			value := innerString[bracketsIndices[k][0]:bracketsIndices[k][1]]
+			if value == "[" || value == "{" {
+				OpenningBracketsIndexes = append(OpenningBracketsIndexes, bracketsIndices[k][0])
+			} else { // ] or }
+				if len(OpenningBracketsIndexes) > 0 {
+					starting := OpenningBracketsIndexes[len(OpenningBracketsIndexes)-1]
+					ending := bracketsIndices[k][1]
+					innerObjectOrArray := innerString[starting:ending]
+					if !validJSONregex.MatchString(innerObjectOrArray) {
+						return "", errors.New(produceAReasonForInvalidation(innerObjectOrArray))
+					}
+					OpenningBracketsIndexes = OpenningBracketsIndexes[:len(OpenningBracketsIndexes)-1]
+				} else {
+					return "", errors.New("This is an invalid JSON\nThis is an array that is surrounded by invalid \"][}{\"")
 				}
 			}
-			if !found {
-				revisedIndices = append(revisedIndices, v)
-			}
 		}
-		return revisedIndices
 	}
-	return indices
+	if len(OpenningBracketsIndexes) > 0 {
+		return "", errors.New("This is an invalid JSON\nThis is an array that is surrounded by invalid \"][}{\"")
+	}
+	return "This is a valid JSON", nil
 }
-*/
 
-func removeArraysInStringValues(innerString string, indices [][]int) [][]int {
-	stringValuesPattern := `\s*".*"\s*[,\]]`
-	stringValuesRegex := regexp.MustCompile(stringValuesPattern)
-	stringValuesIndices := stringValuesRegex.FindAllIndex([]byte(innerString), -1)
+func removeBracketsThatAreInStrings(innerString string, indices [][]int) [][]int {
+	stringValuesRegex := regexp.MustCompile(strinG)
+	stringValuesIndices := stringValuesRegex.FindAllStringIndex(innerString, -1)
 	if len(stringValuesIndices) > 0 {
 		if indices[len(indices)-1][0] < (stringValuesIndices[0][1]-1) ||
 			indices[0][0] > (stringValuesIndices[len(stringValuesIndices)-1][1]) {
@@ -153,7 +89,7 @@ func removeArraysInStringValues(innerString string, indices [][]int) [][]int {
 		for _, v := range indices {
 			found := false
 			for _, v2 := range stringValuesIndices {
-				if v[0] > v2[0] && v[1] < v2[1]-1 {
+				if v[0] > v2[0] && v[1] < v2[1] {
 					found = true
 					break
 				}
@@ -290,15 +226,3 @@ func isAnArrayThatSurroundedByInvalidCommas(fileContentString string) bool {
 	regex := regexp.MustCompile(`(?s)\A\s*((,\s*)+` + outerSquareBrackets + `|` + outerSquareBrackets + `(\s*,)+|(,\s*)+` + outerSquareBrackets + `(\s*,)+)\s*\z`)
 	return regex.MatchString(fileContentString)
 }
-
-//(?s):(\s*[\{]\s*)+(\s*("([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/|\\u)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*")\s*:\s*(null|true|false|-?\d{1}\.\d+([eE][-+]?)\d+|-?[1-9]\d+\.\d+([eE][-+]?)\d+|-?[1-9]\d*([eE][-+]?)\d+|-?\d{1}\.\d+|-?[1-9]\d+\.\d+|-?[1-9]\d*|-?0([eE][-+]?\d+){0,1}|"([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/|\\u)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*"|\[[^][]*\]|{[^}{]*}|\[.*\[.*\].*\]|\{.*\{.*\}.*\}){1}\s*)(\s*[\}]\s*),
-
-//`:\s*{`       `}\s*(,\s*"|(}\s*)*}\s*)`       `(?s):\s*{.*?}\s*(,\s*"|(}\s*)*}\s*,?)`            `(?s):\s*({.*?}\s*|\[.*?\])\s*(,\s*"|(}\s*)*}\s*,?)`
-
-//(?s)(?:\s*("([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/|\\u)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*")\s*:\s*)(\[.*?\])(?:\s*,\s*".*?"\s*:|(\]\s*)*\]\s*)
-
-//(?s)(?::\s*)({.*?}\s*|\[.*?\])(?:\s*(,\s*".*?"|(}\s*)*}\s*,".*?"))
-
-//(?s):\s*({.*?}|\[.*?\])\s*(,\s*"|(}\s*)*}\s*,\s*"|}\s*\z)
-
-//(?s)(?::\s*)(\{.*?\}|\[.*?\])(?:\s*(,\s*".*?"|([\}\]]\s*)*}\s*,"|[\}\]]\s*\z))
