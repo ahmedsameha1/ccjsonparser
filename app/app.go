@@ -111,8 +111,8 @@ func produceAReasonForInvalidation(fileContentString string) string {
 	if isALeadedZeroNumber(fileContentString) {
 		return invalid + "\nAn invalid number, there is a leading zero"
 	}
-	if multipleValuesOutsidAnArray(fileContentString) {
-		return invalid + "\nMultiple values outside of an array"
+	if multipleValuesOutsidAnObjectOrArray(fileContentString) {
+		return invalid + "\nMultiple values outside of an object or array"
 	}
 	if isString(fileContentString) {
 		return invalid + "\nThis is an invalid string"
@@ -157,7 +157,7 @@ func isThereNoObjectOrArray(fileContentString string) bool {
 	return regex.MatchString(fileContentString)
 }
 
-func multipleValuesOutsidAnArray(fileContentString string) bool {
+func multipleValuesOutsidAnObjectOrArray(fileContentString string) bool {
 	regex := regexp.MustCompile(`(?s)\A\s*((` + strinG + `|` + number + `|false|null|true|` + innerBrackets + `)\s*(,\s*)*){2,}\s*\z`)
 	return regex.MatchString(fileContentString)
 }
