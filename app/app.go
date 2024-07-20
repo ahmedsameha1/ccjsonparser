@@ -135,6 +135,11 @@ func produceAReasonForInvalidation(fileContentString string) string {
 	if isAnArrayThatSurroundedByInvalidCommas(fileContentString) {
 		return invalid + "\nThis is an array that is surrounded by invalid commas"
 	}
+	if isAnObject(fileContentString) {
+		if isAnObjectThatContainsExtraTailCommas(fileContentString) {
+			return invalid + "\nThere is an object that contains an extra tail comma(s)"
+		}
+	}
 	if isAnArray(fileContentString) {
 		if isAnUnclosedArray(fileContentString) {
 			return invalid + "\nThis is an unclosed array"
@@ -143,13 +148,13 @@ func produceAReasonForInvalidation(fileContentString string) string {
 			return invalid + "\nThis is an array that is closed as an object"
 		}
 		if isAnArrayThatContainsExtraAdvancingCommas(fileContentString) {
-			return invalid + "\nThis is an array that contains extra advancing comma(s)"
+			return invalid + "\nThere is an array that contains an extra advancing comma(s)"
 		}
 		if isAnArrayThatContainsExtraTailCommas(fileContentString) {
-			return invalid + "\nThis is an array that contains extra tail comma(s)"
+			return invalid + "\nThere is an array that contains an extra tail comma(s)"
 		}
 	}
-	if isThereAStringThatIsNotSurroundedCorrectlyWithDoubleQuotesL(fileContentString) {
+	if isThereAStringThatIsNotSurroundedCorrectlyWithDoubleQuotes(fileContentString) {
 		return invalid + "\nThere is a string that is not surrounded correctly by (\"\")"
 	}
 	return invalid
@@ -200,6 +205,11 @@ func isAnArray(fileContentString string) bool {
 	return regex.MatchString(fileContentString)
 }
 
+func isAnObject(fileContentString string) bool {
+	regex := regexp.MustCompile(`(?s)\A\s*\{.*\s*\z`)
+	return regex.MatchString(fileContentString)
+}
+
 func isAnUnclosedArray(fileContentString string) bool {
 	regex := regexp.MustCompile(`(?s)\A\s*\[[^]}]*\s*\z`)
 	return regex.MatchString(fileContentString)
@@ -212,6 +222,11 @@ func isAnArrayThatClosedAsAnObject(fileContentString string) bool {
 
 func isAnArrayThatContainsExtraTailCommas(fileContentString string) bool {
 	regex := regexp.MustCompile(`(?s)\A\s*\[\s*((\s*(null|true|false|-?\d{1}\.\d+([eE][-+]?)\d+|-?[1-9]\d+\.\d+([eE][-+]?)\d+|-?[1-9]\d*([eE][-+]?)\d+|-?\d{1}\.\d+|-?[1-9]\d+\.\d+|-?[1-9]\d*|"([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*"|\[[^][]*\]|{[^}{]*}|\[.*\[.*\].*\]|\{.*\{.*\}.*\}){1}\s*(,\s*)+)*)\]\s*\z`)
+	return regex.MatchString(fileContentString)
+}
+
+func isAnObjectThatContainsExtraTailCommas(fileContentString string) bool {
+	regex := regexp.MustCompile(`(?s)\A\s*{\s*((\s*("([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/|\\u)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*")\s*:\s*(null|true|false|-?\d{1}\.\d+([eE][-+]?)\d+|-?[1-9]\d+\.\d+([eE][-+]?)\d+|-?[1-9]\d*([eE][-+]?)\d+|-?\d{1}\.\d+|-?[1-9]\d+\.\d+|-?[1-9]\d*|-?0([eE][-+]?\d+){0,1}|"([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/|\\u)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*"|\[[^][]*\]|{[^}{]*}|\[.*\[.*\].*\]|\{.*\{.*\}.*\}){1}\s*,\s*)*(\s*("([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/|\\u)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*")\s*:\s*(null|true|false|-?\d{1}\.\d+([eE][-+]?)\d+|-?[1-9]\d+\.\d+([eE][-+]?)\d+|-?[1-9]\d*([eE][-+]?)\d+|-?\d{1}\.\d+|-?[1-9]\d+\.\d+|-?[1-9]\d*|-?0([eE][-+]?\d+){0,1}|"([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/|\\u)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*"|\[[^][]*\]|{[^}{]*}|\[.*\[.*\].*\]|\{.*\{.*\}.*\}){1}\s*(,\s*)+){1}){0,1}}\s*\z`)
 	return regex.MatchString(fileContentString)
 }
 
@@ -230,7 +245,7 @@ func isAnArrayThatSurroundedByInvalidCommas(fileContentString string) bool {
 	return regex.MatchString(fileContentString)
 }
 
-func isThereAStringThatIsNotSurroundedCorrectlyWithDoubleQuotesL(fileContentString string) bool {
+func isThereAStringThatIsNotSurroundedCorrectlyWithDoubleQuotes(fileContentString string) bool {
 	doubleQuotesRegex := regexp.MustCompile(`"`)
 	doubleQuotesIndices := doubleQuotesRegex.FindAllStringIndex(fileContentString, -1)
 	escapedDoubleQuotesRegex := regexp.MustCompile(`\\"`)
