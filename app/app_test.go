@@ -72,7 +72,7 @@ func TestApp(t *testing.T) {
 		  }`, result: "This is a valid JSON",
 			err: nil},
 		{fileName: "invalid.json", fileContent: `["key", "value"`, result: "",
-			err: errors.New("This is an invalid JSON\nThis is an unclosed array")},
+			err: errors.New("This is an invalid JSON\nThere is an unclosed array")},
 		{fileName: "invalid.json", fileContent: `["key", "value"}`, result: "",
 			err: errors.New("This is an invalid JSON\nThis is an array that is closed as an object")},
 		{fileName: "invalid.json", fileContent: `["key", "value",]`, result: "",
@@ -215,6 +215,11 @@ func TestApp(t *testing.T) {
 			"key 5 ": " value 5",
 		  ,`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is an object that is closed with a comma(s)")},
+		{fileName: "invalid.json", fileContent: `{
+			"key": "value",
+			"key 5 ": " value 5"
+		  `, result: "",
+			err: errors.New("This is an invalid JSON\nThere is an unclosed object")},
 		{fileName: "invalid.json", fileContent: `[
 			"key", "value",
 			"key 5 ", " value 5",
