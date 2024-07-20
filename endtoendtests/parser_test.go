@@ -176,6 +176,8 @@ func TestInvalidCases(t *testing.T) {
 			errResult: "This is an invalid JSON\nThis is an array that is closed as an object\n"},
 		{filePath: "tests/step3/fail9.json",
 			errResult: "This is an invalid JSON\nThere is an object that contains an extra tail comma(s)\n"},
+		{filePath: "tests/step3/fail32.json",
+			errResult: "This is an invalid JSON\nThere is an object that is closed with a comma(s)\n"},
 		{filePath: "tests/step3/invalid.json",
 			errResult: "This is an invalid JSON\n"},
 		{filePath: "tests/step3/invalid2.json",

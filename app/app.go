@@ -136,6 +136,9 @@ func produceAReasonForInvalidation(fileContentString string) string {
 		return invalid + "\nThis is an array that is surrounded by invalid commas"
 	}
 	if isAnObject(fileContentString) {
+		if isAnObjectThatIsClosedWithCommas(fileContentString) {
+			return invalid + "\nThere is an object that is closed with a comma(s)"
+		}
 		if isAnObjectThatContainsExtraTailCommas(fileContentString) {
 			return invalid + "\nThere is an object that contains an extra tail comma(s)"
 		}
@@ -212,6 +215,11 @@ func isAnObject(fileContentString string) bool {
 
 func isAnUnclosedArray(fileContentString string) bool {
 	regex := regexp.MustCompile(`(?s)\A\s*\[[^]}]*\s*\z`)
+	return regex.MatchString(fileContentString)
+}
+
+func isAnObjectThatIsClosedWithCommas(fileContentString string) bool {
+	regex := regexp.MustCompile(`(?s)\A\s*\{[^]}]*(,\s*)+\s*\z`)
 	return regex.MatchString(fileContentString)
 }
 
