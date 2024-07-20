@@ -139,12 +139,12 @@ func TestApp(t *testing.T) {
 			"key": "value",
 			key2: "value"
 		  }`, result: "",
-			err: errors.New("This is an invalid JSON")},
+			err: errors.New("This is an invalid JSON\nThere is a string that is not surrounded correctly by (\"\")")},
 		{fileName: "invalid.json", fileContent: `{"key":value","key":"value"}`, result: "",
-			err: errors.New("This is an invalid JSON")},
+			err: errors.New("This is an invalid JSON\nThere is a string that is not surrounded correctly by (\"\")")},
 		{fileName: "invalid.json", fileContent: `{"key":value","key":
 		"value"}`, result: "",
-			err: errors.New("This is an invalid JSON")},
+			err: errors.New("This is an invalid JSON\nThere is a string that is not surrounded correctly by (\"\")")},
 		{fileName: "invalid.json", fileContent: `{"key":"	tab	character	in	string	"}`, result: "",
 			err: errors.New("This is an invalid JSON")},
 		{fileName: "invalid.json", fileContent: `["tab\   character\   in\  string\  "]`, result: "",
@@ -191,7 +191,7 @@ func TestApp(t *testing.T) {
 			"key 5 ": " value 5",
 			"\"  wief"gbi": "gwoeh"
 		  }`, result: "",
-			err: errors.New("This is an invalid JSON")},
+			err: errors.New("This is an invalid JSON\nThere is a string that is not surrounded correctly by (\"\")")},
 		{fileName: "invalid.json", fileContent: `{
 			"key": "value",
 			"key2": "value",
@@ -204,7 +204,7 @@ func TestApp(t *testing.T) {
 			"key 5 ": " value 5",
 			"gbi": "\"  wief"gbi"
 		  }`, result: "",
-			err: errors.New("This is an invalid JSON")},
+			err: errors.New("This is an invalid JSON\nThere is a string that is not surrounded correctly by (\"\")")},
 		{fileName: "invalid.json", fileContent: `{
 			"key": "Illegal backslash escape: \x15"
 		  }`, result: "",
@@ -273,7 +273,7 @@ func TestApp(t *testing.T) {
 			"key4": "value",
 			"key5": 101
 		  }`, result: "",
-			err: errors.New("This is an invalid JSON")},
+			err: errors.New("This is an invalid JSON\nThere is a string that is not surrounded correctly by (\"\")")},
 		{fileName: "invalid.json", fileContent: `{
 			"key5": 0101
 		  }`, result: "",
@@ -313,7 +313,7 @@ func TestApp(t *testing.T) {
 			"key4": "value",
 			"key5": 101true
 		  }`, result: "",
-			err: errors.New("This is an invalid JSON")},
+			err: errors.New("This is an invalid JSON\nThere is a string that is not surrounded correctly by (\"\")")},
 		{fileName: "invalid.json", fileContent: `{
 			"key1": true,
 			"key2": false,
@@ -321,7 +321,7 @@ func TestApp(t *testing.T) {
 			"key4": "value",
 			"key5": 101true
 		  }`, result: "",
-			err: errors.New("This is an invalid JSON")},
+			err: errors.New("This is an invalid JSON\nThere is a string that is not surrounded correctly by (\"\")")},
 		{fileName: "valid.json", fileContent: `{
 			"key1": true,
 			"key2": false,
@@ -420,31 +420,31 @@ func TestApp(t *testing.T) {
 				]
 			}
 		}`, result: "",
-			err: errors.New("This is an invalid JSON")},
+			err: errors.New("This is an invalid JSON\nThere is a string that is not surrounded correctly by (\"\")")},
 		{fileName: "invalid.json", fileContent: `{
 			"array": [
 			  n, 1, 2, 3, 4, 5, 6, 7
 			]
 		  }`, result: "",
-			err: errors.New("This is an invalid JSON")},
+			err: errors.New("This is an invalid JSON\nThere is a string that is not surrounded correctly by (\"\")")},
 		{fileName: "invalid.json", fileContent: `[
 			[
 			 n, 1, 2, 3
 		   ]
 		 ]`, result: "",
-			err: errors.New("This is an invalid JSON")},
+			err: errors.New("This is an invalid JSON\nThere is a string that is not surrounded correctly by (\"\")")},
 		{fileName: "invalid.json", fileContent: `[
 			[
 			 "value1, "value2", [1, 2]
 		   ]
 		 ]`, result: "",
-			err: errors.New("This is an invalid JSON")},
+			err: errors.New("This is an invalid JSON\nThere is a string that is not surrounded correctly by (\"\")")},
 		{fileName: "invalid.json", fileContent: `{
 			"key": [
 			 "value1, "value2", [1, 2]
 			 ]
 		   }`, result: "",
-			err: errors.New("This is an invalid JSON")},
+			err: errors.New("This is an invalid JSON\nThere is a string that is not surrounded correctly by (\"\")")},
 		{fileName: "invalid.json", fileContent: `{
 			"batter":
 			  [

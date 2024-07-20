@@ -149,6 +149,9 @@ func produceAReasonForInvalidation(fileContentString string) string {
 			return invalid + "\nThis is an array that contains extra tail comma(s)"
 		}
 	}
+	if isThereAStringThatIsNotSurroundedCorrectlyWithDoubleQuotesL(fileContentString) {
+		return invalid + "\nThere is a string that is not surrounded correctly by (\"\")"
+	}
 	return invalid
 }
 
@@ -225,4 +228,38 @@ func isAnArrayThatSurroundedByInvalidBrackets(fileContentString string) bool {
 func isAnArrayThatSurroundedByInvalidCommas(fileContentString string) bool {
 	regex := regexp.MustCompile(`(?s)\A\s*((,\s*)+` + outerSquareBrackets + `|` + outerSquareBrackets + `(\s*,)+|(,\s*)+` + outerSquareBrackets + `(\s*,)+)\s*\z`)
 	return regex.MatchString(fileContentString)
+}
+
+func isThereAStringThatIsNotSurroundedCorrectlyWithDoubleQuotesL(fileContentString string) bool {
+	doubleQuotesRegex := regexp.MustCompile(`"`)
+	doubleQuotesIndices := doubleQuotesRegex.FindAllStringIndex(fileContentString, -1)
+	escapedDoubleQuotesRegex := regexp.MustCompile(`\\"`)
+	escapedDoubleQuotesIndices := escapedDoubleQuotesRegex.FindAllStringIndex(fileContentString, -1)
+	var revisedIndices [][]int = make([][]int, 0)
+	for _, v1 := range doubleQuotesIndices {
+		found := false
+		for _, v2 := range escapedDoubleQuotesIndices {
+			if v2[0]+1 == v1[0] {
+				found = true
+				break
+			}
+		}
+		if !found {
+			revisedIndices = append(revisedIndices, v1)
+		}
+	}
+	if len(revisedIndices)%2 == 0 {
+		regex1 := regexp.MustCompile(`[,:\[\{]\s*(\d+)?[^",0-9]+\s*(\d+)?[,:\]\}]`)
+		unquotedStrings := regex1.FindAllString(fileContentString, -1)
+		regex2 := regexp.MustCompile(`(?i)\b(null|true|false|-?\d{1}\.\d+([e][-+]?)\d*|-?\d+\.\d+([e][-+]?)\d*|-?\d+([e][-+]?)\d*|-?\d{1}\.\d*|-?\d+\.\d*|-?\d+|-?0([e][-+]?\d*){0,1}|0x[0-9a-f]+)\b`)
+		revised := make([]string, 0)
+		for _, v := range unquotedStrings {
+			if !regex2.MatchString(v) {
+				revised = append(revised, v)
+
+			}
+		}
+		return len(revised) > 0
+	}
+	return len(revisedIndices)%2 == 1
 }
