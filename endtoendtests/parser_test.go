@@ -230,6 +230,8 @@ func TestInvalidCases(t *testing.T) {
 			errResult: "This is an invalid JSON\n"},
 		{filePath: "tests/step3/invalid26.json",
 			errResult: "This is an invalid JSON\nThere is a string that is not surrounded correctly by (\"\")\n"},
+		{filePath: "tests/step3/invalid27.json",
+			errResult: "This is an invalid JSON\nThere is an array that is closed with a comma(s)\n"},
 		{filePath: "tests/step4/invalid.json",
 			errResult: "This is an invalid JSON\nThere is a string that is not surrounded correctly by (\"\")\n"},
 		{filePath: "tests/step4/invalid2.json",

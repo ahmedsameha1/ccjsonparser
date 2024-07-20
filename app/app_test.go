@@ -215,6 +215,16 @@ func TestApp(t *testing.T) {
 			"key 5 ": " value 5",
 		  ,`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is an object that is closed with a comma(s)")},
+		{fileName: "invalid.json", fileContent: `[
+			"key", "value",
+			"key 5 ", " value 5",
+		  `, result: "",
+			err: errors.New("This is an invalid JSON\nThere is an array that is closed with a comma(s)")},
+		{fileName: "invalid.json", fileContent: `[
+			"key", "value",
+			"key 5 ", " value 5",
+		  ,`, result: "",
+			err: errors.New("This is an invalid JSON\nThere is an array that is closed with a comma(s)")},
 		{fileName: "invalid.json", fileContent: `{
 			"key": "Illegal backslash escape: \x15"
 		  }`, result: "",
