@@ -1,0 +1,12 @@
+{
+  "key": "value",
+  "key2": 101,
+  "key3": {
+    "key31": 75,
+    "key32":
+    {
+    "inner key" "inner value"
+    }
+  },
+  "key4": ["list value"]
+}
