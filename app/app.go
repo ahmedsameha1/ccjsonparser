@@ -114,6 +114,9 @@ func produceAReasonForInvalidation(fileContentString string) string {
 	if isALeadedPlusNumber(fileContentString) {
 		return invalid + "\nAn invalid number, there is a leading +"
 	}
+	if hasAHexadecimalNumber(fileContentString) {
+		return invalid + "\nThere is an invalid number, hexadecimal numbers are not allowed"
+	}
 	if multipleValuesOutsidAnObjectOrArray(fileContentString) {
 		return invalid + "\nMultiple values outside of an object or array"
 	}
@@ -218,6 +221,11 @@ func isALeadedZeroNumber(fileContentString string) bool {
 
 func isALeadedPlusNumber(fileContentString string) bool {
 	regex := regexp.MustCompile(`(?s)\A\s*([+-]?\d{1}\.\d+([eE][-+]?)\d+|[+-]?[1-9]\d+\.\d+([eE][-+]?)\d+|[+-]?[1-9]\d*([eE][-+]?)\d+|[+-]?\d{1}\.\d+|[+-]?[1-9]\d+\.\d+|[+-]?[1-9]\d*)\s*\z`)
+	return regex.MatchString(fileContentString)
+}
+
+func hasAHexadecimalNumber(fileContentString string) bool {
+	regex := regexp.MustCompile(`[^"]*([\[\{]\s*|\A\s*|\s+)0[xX][0-9a-fA-F]+([\]\}]\s*|\s*\z|\s+)[^"]*`)
 	return regex.MatchString(fileContentString)
 }
 

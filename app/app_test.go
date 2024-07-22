@@ -432,6 +432,42 @@ func TestApp(t *testing.T) {
 			"key": "value",
 			"key-n": 101,
 			"key-o": {
+			  "inner key": 0x9
+			},
+			"key-l": ["list value"]
+		  }`, result: "",
+			err: errors.New("This is an invalid JSON\nThere is an invalid number, hexadecimal numbers are not allowed")},
+		{fileName: "invalid.json", fileContent: `{
+			"key": "value",
+			"key-n": 101,
+			"key-o": {
+			  "inner key": "inner value"
+			},
+			"key-l": [0xc]
+		  }`, result: "",
+			err: errors.New("This is an invalid JSON\nThere is an invalid number, hexadecimal numbers are not allowed")},
+		{fileName: "invalid.json", fileContent: `{
+			"key": "value",
+			"key-n": 101,
+			"key-o": {
+			  "inner key": 0X9
+			},
+			"key-l": ["list value"]
+		  }`, result: "",
+			err: errors.New("This is an invalid JSON\nThere is an invalid number, hexadecimal numbers are not allowed")},
+		{fileName: "invalid.json", fileContent: `{
+			"key": "value",
+			"key-n": 101,
+			"key-o": {
+			  "inner key": "inner value"
+			},
+			"key-l": [0Xc]
+		  }`, result: "",
+			err: errors.New("This is an invalid JSON\nThere is an invalid number, hexadecimal numbers are not allowed")},
+		{fileName: "invalid.json", fileContent: `{
+			"key": "value",
+			"key-n": 101,
+			"key-o": {
 			  "inner key": "inner value"
 			},
 			"key-l": "list value"]
