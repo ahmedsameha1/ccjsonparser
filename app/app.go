@@ -154,6 +154,9 @@ func produceAReasonForInvalidation(fileContentString string) string {
 		if isAnObjectThatHasAMissingColon(fileContentString) {
 			return invalid + "\nThere is an object that has a missing (:)"
 		}
+		if isAnObjectThatHasAnInvalidColons(fileContentString) {
+			return invalid + "\nThere is an object that has an invalid (:)s"
+		}
 	}
 	if isAnArray(fileContentString) {
 		if isAnArrayThatIsClosedWithCommas(fileContentString) {
@@ -272,8 +275,14 @@ func isAnObjectThatContainsExtraAdvancingCommas(fileContentString string) bool {
 	regex := regexp.MustCompile(`(?s)\A\s*{\s*(,\s*)+((\s*("([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/|\\u)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*")\s*:\s*(null|true|false|-?\d{1}\.\d+([eE][-+]?)\d+|-?[1-9]\d+\.\d+([eE][-+]?)\d+|-?[1-9]\d*([eE][-+]?)\d+|-?\d{1}\.\d+|-?[1-9]\d+\.\d+|-?[1-9]\d*|-?0([eE][-+]?\d+){0,1}|"([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/|\\u)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*"|\[[^][]*\]|{[^}{]*}|\[.*\[.*\].*\]|\{.*\{.*\}.*\}){1}\s*,\s*)*(\s*("([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/|\\u)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*")\s*:\s*(null|true|false|-?\d{1}\.\d+([eE][-+]?)\d+|-?[1-9]\d+\.\d+([eE][-+]?)\d+|-?[1-9]\d*([eE][-+]?)\d+|-?\d{1}\.\d+|-?[1-9]\d+\.\d+|-?[1-9]\d*|-?0([eE][-+]?\d+){0,1}|"([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/|\\u)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*"|\[[^][]*\]|{[^}{]*}|\[.*\[.*\].*\]|\{.*\{.*\}.*\}){1}\s*(,\s*)*){1}){0,1}}\s*\z`)
 	return regex.MatchString(fileContentString)
 }
+
 func isAnObjectThatHasAMissingColon(fileContentString string) bool {
 	regex := regexp.MustCompile(`(?s)\A\s*{\s*((\s*("([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/|\\u)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*")\s*:?\s*(null|true|false|-?\d{1}\.\d+([eE][-+]?)\d+|-?[1-9]\d+\.\d+([eE][-+]?)\d+|-?[1-9]\d*([eE][-+]?)\d+|-?\d{1}\.\d+|-?[1-9]\d+\.\d+|-?[1-9]\d*|-?0([eE][-+]?\d+){0,1}|"([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/|\\u)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*"|\[[^][]*\]|{[^}{]*}|\[.*\[.*\].*\]|\{.*\{.*\}.*\}){1}\s*,\s*)*(\s*("([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/|\\u)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*")\s*:?\s*(null|true|false|-?\d{1}\.\d+([eE][-+]?)\d+|-?[1-9]\d+\.\d+([eE][-+]?)\d+|-?[1-9]\d*([eE][-+]?)\d+|-?\d{1}\.\d+|-?[1-9]\d+\.\d+|-?[1-9]\d*|-?0([eE][-+]?\d+){0,1}|"([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/|\\u)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*"|\[[^][]*\]|{[^}{]*}|\[.*\[.*\].*\]|\{.*\{.*\}.*\}){1}\s*){1}){0,1}}\s*\z`)
+	return regex.MatchString(fileContentString)
+}
+
+func isAnObjectThatHasAnInvalidColons(fileContentString string) bool {
+	regex := regexp.MustCompile(`(?s)\A\s*{\s*(:\s*)*((\s*("([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/|\\u)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*")\s*(:\s*)+\s*(null|true|false|-?\d{1}\.\d+([eE][-+]?)\d+|-?[1-9]\d+\.\d+([eE][-+]?)\d+|-?[1-9]\d*([eE][-+]?)\d+|-?\d{1}\.\d+|-?[1-9]\d+\.\d+|-?[1-9]\d*|-?0([eE][-+]?\d+){0,1}|"([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/|\\u)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*"|\[[^][]*\]|{[^}{]*}|\[.*\[.*\].*\]|\{.*\{.*\}.*\}){1}\s*(:\s*)*,(\s*:)*\s*)*(\s*("([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/|\\u)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*")\s*(:\s*)+\s*(null|true|false|-?\d{1}\.\d+([eE][-+]?)\d+|-?[1-9]\d+\.\d+([eE][-+]?)\d+|-?[1-9]\d*([eE][-+]?)\d+|-?\d{1}\.\d+|-?[1-9]\d+\.\d+|-?[1-9]\d*|-?0([eE][-+]?\d+){0,1}|"([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/|\\u)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*"|\[[^][]*\]|{[^}{]*}|\[.*\[.*\].*\]|\{.*\{.*\}.*\}){1}\s*){1}){0,1}(:\s*)*}\s*\z`)
 	return regex.MatchString(fileContentString)
 }
 
@@ -313,12 +322,11 @@ func isThereAStringThatIsNotSurroundedCorrectlyWithDoubleQuotes(fileContentStrin
 	if len(revisedIndices)%2 == 0 {
 		regex1 := regexp.MustCompile(`[,:\[\{]\s*(\d+)?[^",0-9]+\s*(\d+)?[,:\]\}]`)
 		unquotedStrings := regex1.FindAllString(fileContentString, -1)
-		regex2 := regexp.MustCompile(`(?i)\b(null|true|false|-?\d{1}\.\d+([e][-+]?)\d*|-?\d+\.\d+([e][-+]?)\d*|-?\d+([e][-+]?)\d*|-?\d{1}\.\d*|-?\d+\.\d*|-?\d+|-?0([e][-+]?\d*){0,1}|0x[0-9a-f]+)\b`)
+		regex2 := regexp.MustCompile(`(?i)\b(null|true|false|-?\d{1}\.\d+([e][-+]?)\d*|-?\d+\.\d+([e][-+]?)\d*|-?\d+([e][-+]?)\d*|-?\d{1}\.\d*|-?\d+\.\d*|-?\d+|-?0([e][-+]?\d*){0,1}|0x[0-9a-f]+)\b|\s*:\s*:\s*`)
 		revised := make([]string, 0)
 		for _, v := range unquotedStrings {
 			if !regex2.MatchString(v) {
 				revised = append(revised, v)
-
 			}
 		}
 		return len(revised) > 0
