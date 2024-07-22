@@ -33,7 +33,7 @@ func TestApp(t *testing.T) {
 		{fileName: "invalid.json", fileContent: "True", result: "",
 			err: errors.New("This is an invalid JSON\nShould be \"true\"")},
 		{fileName: "invalid.json", fileContent: "078", result: "",
-			err: errors.New("This is an invalid JSON\nAn invalid number, there is a leading zero")},
+			err: errors.New("This is an invalid JSON\nThere is an invalid number, there is a leading zero")},
 		{fileName: "invalid.json", fileContent: `"string1", "string 2"`, result: "",
 			err: errors.New("This is an invalid JSON\nMultiple values outside of an object or array")},
 		{fileName: "invalid.json", fileContent: `"string1" "string 2"`, result: "",
@@ -342,35 +342,35 @@ func TestApp(t *testing.T) {
 		{fileName: "invalid.json", fileContent: `{
 			"key5": 0101
 		  }`, result: "",
-			err: errors.New("This is an invalid JSON")},
+			err: errors.New("This is an invalid JSON\nThere is an invalid number, there is a leading zero")},
 		{fileName: "invalid.json", fileContent: `{
 			"key5": 01.01
 		  }`, result: "",
-			err: errors.New("This is an invalid JSON")},
+			err: errors.New("This is an invalid JSON\nThere is an invalid number, there is a leading zero")},
 		{fileName: "invalid.json", fileContent: `{
 			"key5": 023456789012E66
 		  }`, result: "",
-			err: errors.New("This is an invalid JSON")},
+			err: errors.New("This is an invalid JSON\nThere is an invalid number, there is a leading zero")},
 		{fileName: "invalid.json", fileContent: `{
 			"key5": 02.3456789012E66
 		  }`, result: "",
-			err: errors.New("This is an invalid JSON")},
+			err: errors.New("This is an invalid JSON\nThere is an invalid number, there is a leading zero")},
 		{fileName: "invalid.json", fileContent: `{
 			"key5": -0101
 		  }`, result: "",
-			err: errors.New("This is an invalid JSON")},
+			err: errors.New("This is an invalid JSON\nThere is an invalid number, there is a leading zero")},
 		{fileName: "invalid.json", fileContent: `{
 			"key5": -01.01
 		  }`, result: "",
-			err: errors.New("This is an invalid JSON")},
+			err: errors.New("This is an invalid JSON\nThere is an invalid number, there is a leading zero")},
 		{fileName: "invalid.json", fileContent: `{
 			"key5": -023456789012E66
 		  }`, result: "",
-			err: errors.New("This is an invalid JSON")},
+			err: errors.New("This is an invalid JSON\nThere is an invalid number, there is a leading zero")},
 		{fileName: "invalid.json", fileContent: `{
 			"key5": -02.3456789012E66
 		  }`, result: "",
-			err: errors.New("This is an invalid JSON")},
+			err: errors.New("This is an invalid JSON\nThere is an invalid number, there is a leading zero")},
 		{fileName: "invalid.json", fileContent: `{
 			"key1": true,
 			"key2": false,

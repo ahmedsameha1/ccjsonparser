@@ -109,7 +109,10 @@ func produceAReasonForInvalidation(fileContentString string) string {
 		return invalid + "\nMUST be an object, array, number, or string, or false or null or true"
 	}
 	if isALeadedZeroNumber(fileContentString) {
-		return invalid + "\nAn invalid number, there is a leading zero"
+		return invalid + "\nThere is an invalid number, there is a leading zero"
+	}
+	if isALeadedPlusNumber(fileContentString) {
+		return invalid + "\nAn invalid number, there is a leading +"
 	}
 	if multipleValuesOutsidAnObjectOrArray(fileContentString) {
 		return invalid + "\nMultiple values outside of an object or array"
@@ -125,9 +128,6 @@ func produceAReasonForInvalidation(fileContentString string) string {
 	}
 	if isTrue(fileContentString) {
 		return invalid + "\nShould be \"true\""
-	}
-	if isALeadedPlusNumber(fileContentString) {
-		return invalid + "\nAn invalid number, there is a leading +"
 	}
 	if isAnArrayThatSurroundedByInvalidBrackets(fileContentString) {
 		return invalid + "\nThis is an array that is surrounded by invalid \"][}{\""
@@ -212,7 +212,7 @@ func isTrue(fileContentString string) bool {
 }
 
 func isALeadedZeroNumber(fileContentString string) bool {
-	regex := regexp.MustCompile(`(?s)\A\s*([0-]?\d{1}\.\d+([eE][-+]?)\d+|[0-]?[1-9]\d+\.\d+([eE][-+]?)\d+|[0-]?[1-9]\d*([eE][-+]?)\d+|[0-]?\d{1}\.\d+|[0-]?[1-9]\d+\.\d+|[0-]?[1-9]\d*)\s*\z`)
+	regex := regexp.MustCompile(`[^"]*([\[\{]\s*|\A\s*|\s+)-?0\d*[e+-.]*\d*[eE+-.]*\d*([\]\}]\s*|\s*\z|\s+)[^"]*`)
 	return regex.MatchString(fileContentString)
 }
 
