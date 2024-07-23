@@ -495,6 +495,13 @@ func TestApp(t *testing.T) {
 			err: errors.New("This is an invalid JSON\nThis is an array that is surrounded by invalid \"][}{\"")},
 		{fileName: "invalid.json", fileContent: `[[[[[[[[["hi"]]]]]]]]]]]]`, result: "",
 			err: errors.New("This is an invalid JSON\nThis is an array that is surrounded by invalid \"][}{\"")},
+		{fileName: "invalid.json", fileContent: `[
+			"key", "value",
+			"key-n": 101,
+			"key-o", {},
+			"key-l", []
+		  ]`, result: "",
+			err: errors.New("This is an invalid JSON\nThere is an array that has a (:) instead of a (,)")},
 		{fileName: "valid.json", fileContent: `{
 			"key": "value",
 			"key-n": 101,
