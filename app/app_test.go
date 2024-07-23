@@ -491,6 +491,15 @@ func TestApp(t *testing.T) {
 			"key-l": ["list value"]
 		  }`, result: "",
 			err: errors.New("This is an invalid JSON")},
+		{fileName: "invalid.json", fileContent: `{
+			"key": "value",
+			"key-n", 101,
+			"key-o": {
+			  "inner key": "inner value"
+			},
+			"key-l": ["list value"]
+		  }`, result: "",
+			err: errors.New("This is an invalid JSON\nThere is an object that has a comma instead of a colon")},
 		{fileName: "invalid.json", fileContent: `[[[[[[[[[[[[[[77]]]]]]]]]`, result: "",
 			err: errors.New("This is an invalid JSON\nThis is an array that is surrounded by invalid \"][}{\"")},
 		{fileName: "invalid.json", fileContent: `[[[[[[[[["hi"]]]]]]]]]]]]`, result: "",
