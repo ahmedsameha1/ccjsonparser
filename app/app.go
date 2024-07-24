@@ -120,9 +120,6 @@ func produceAReasonForInvalidation(fileContentString string) string {
 	if multipleValuesOutsidAnObjectOrArray(fileContentString) {
 		return invalid + "\nMultiple values outside of an object or array"
 	}
-	if isString(fileContentString) {
-		return invalid + "\nThis is an invalid string"
-	}
 	if isNull(fileContentString) {
 		return invalid + "\nShould be \"null\""
 	}
@@ -187,6 +184,9 @@ func produceAReasonForInvalidation(fileContentString string) string {
 	if isThereAStringThatIsNotSurroundedCorrectlyWithDoubleQuotes(fileContentString) {
 		return invalid + "\nThere is a string that is not surrounded correctly by (\"\")"
 	}
+	if hasAStringThatContainsNewLinesOrTabs(fileContentString) {
+		return invalid + "\nThere is a string that contains tabs or new lines or Illegal backslash escapes"
+	}
 	return invalid
 }
 
@@ -197,11 +197,6 @@ func isThereNoObjectOrArray(fileContentString string) bool {
 
 func multipleValuesOutsidAnObjectOrArray(fileContentString string) bool {
 	regex := regexp.MustCompile(`(?s)\A\s*((` + strinG + `|` + number + `|false|null|true|` + innerBrackets + `)\s*(,\s*)*){2,}\s*\z`)
-	return regex.MatchString(fileContentString)
-}
-
-func isString(fileContentString string) bool {
-	regex := regexp.MustCompile(`(?s)\A\s*".*"\s*\z`)
 	return regex.MatchString(fileContentString)
 }
 
@@ -356,4 +351,9 @@ func isThereAStringThatIsNotSurroundedCorrectlyWithDoubleQuotes(fileContentStrin
 		return len(revised) > 0
 	}
 	return len(revisedIndices)%2 == 1
+}
+
+func hasAStringThatContainsNewLinesOrTabs(fileContentString string) bool {
+	regex := regexp.MustCompile(`(?s)\A\s*("([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/|\\u)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*"|"[^"]*"|-?\d{1}\.\d+([eE][-+]?)\d+|-?[1-9]\d+\.\d+([eE][-+]?)\d+|-?[1-9]\d*([eE][-+]?)\d+|-?\d{1}\.\d+|-?[1-9]\d+\.\d+|-?[1-9]\d*|-?0([eE][-+]?\d+){0,1}|false|null|true|\[\s*((\s*(null|true|false|-?\d{1}\.\d+([eE][-+]?)\d+|-?[1-9]\d+\.\d+([eE][-+]?)\d+|-?[1-9]\d*([eE][-+]?)\d+|-?\d{1}\.\d+|-?[1-9]\d+\.\d+|-?[1-9]\d*|-?0([eE][-+]?\d+){0,1}|"([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/|\\u)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*"|"[^"]*"|\[[^][]*\]|{[^}{]*}|\[.*\[.*\].*\]|\{.*\{.*\}.*\}){1}\s*,\s*)*(\s*(null|true|false|-?\d{1}\.\d+([eE][-+]?)\d+|-?[1-9]\d+\.\d+([eE][-+]?)\d+|-?[1-9]\d*([eE][-+]?)\d+|-?\d{1}\.\d+|-?[1-9]\d+\.\d+|-?[1-9]\d*|-?0([eE][-+]?\d+){0,1}|"([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/|\\u)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*"|"[^"]*"|\[[^][]*\]|{[^}{]*}|\[.*\[.*\].*\]|\{.*\{.*\}.*\}){1}\s*){1}){0,1}\]|{\s*((\s*("([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/|\\u)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*"|"[^"]*")\s*:\s*(null|true|false|-?\d{1}\.\d+([eE][-+]?)\d+|-?[1-9]\d+\.\d+([eE][-+]?)\d+|-?[1-9]\d*([eE][-+]?)\d+|-?\d{1}\.\d+|-?[1-9]\d+\.\d+|-?[1-9]\d*|-?0([eE][-+]?\d+){0,1}|"([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/|\\u)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*"|"[^"]*"|\[[^][]*\]|{[^}{]*}|\[.*\[.*\].*\]|\{.*\{.*\}.*\}){1}\s*,\s*)*(\s*("([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/|\\u)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*"|"[^"]*")\s*:\s*(null|true|false|-?\d{1}\.\d+([eE][-+]?)\d+|-?[1-9]\d+\.\d+([eE][-+]?)\d+|-?[1-9]\d*([eE][-+]?)\d+|-?\d{1}\.\d+|-?[1-9]\d+\.\d+|-?[1-9]\d*|-?0([eE][-+]?\d+){0,1}|"([^"\n\t\\]*?(\\"|\\\t|\\\\|\\b|\\f|\\n|\\r|\\t|\\/|\\u)+[^"\n\t\\]*?)+"|"[^"\n\t\\]*"|"[^"]*"|\[[^][]*\]|{[^}{]*}|\[.*\[.*\].*\]|\{.*\{.*\}.*\}){1}\s*){1}){0,1}}){1}\s*\z`)
+	return regex.MatchString(fileContentString)
 }

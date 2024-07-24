@@ -41,7 +41,7 @@ func TestApp(t *testing.T) {
 		{fileName: "invalid.json", fileContent: "\"string1\",\n \"string 2\"", result: "",
 			err: errors.New("This is an invalid JSON\nMultiple values outside of an object or array")},
 		{fileName: "invalid.json", fileContent: `"str\074b"`, result: "",
-			err: errors.New("This is an invalid JSON\nThis is an invalid string")},
+			err: errors.New("This is an invalid JSON\nThere is a string that contains tabs or new lines or Illegal backslash escapes")},
 		{fileName: "valid.json", fileContent: `{"key": "value"}`, result: "This is a valid JSON",
 			err: nil},
 		{fileName: "valid.json", fileContent: `{
@@ -186,9 +186,9 @@ func TestApp(t *testing.T) {
 		"value"}`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is a string that is not surrounded correctly by (\"\")")},
 		{fileName: "invalid.json", fileContent: `{"key":"	tab	character	in	string	"}`, result: "",
-			err: errors.New("This is an invalid JSON")},
+			err: errors.New("This is an invalid JSON\nThere is a string that contains tabs or new lines or Illegal backslash escapes")},
 		{fileName: "invalid.json", fileContent: `["tab\   character\   in\  string\  "]`, result: "",
-			err: errors.New("This is an invalid JSON")},
+			err: errors.New("This is an invalid JSON\nThere is a string that contains tabs or new lines or Illegal backslash escapes")},
 		{fileName: "invalid.json", fileContent: `{
 			"key": "value",
 			"key2": "value",
@@ -203,7 +203,7 @@ func TestApp(t *testing.T) {
 			":
 			""
 		  }`, result: "",
-			err: errors.New("This is an invalid JSON")},
+			err: errors.New("This is an invalid JSON\nThere is a string that contains tabs or new lines or Illegal backslash escapes")},
 		{fileName: "invalid.json", fileContent: `{
 			"key": "value",
 			"key2": "value",
@@ -218,7 +218,7 @@ func TestApp(t *testing.T) {
 			"
 			"
 		  }`, result: "",
-			err: errors.New("This is an invalid JSON")},
+			err: errors.New("This is an invalid JSON\nThere is a string that contains tabs or new lines or Illegal backslash escapes")},
 		{fileName: "invalid.json", fileContent: `{
 			"key": "value",
 			"key2": "value",
@@ -273,11 +273,11 @@ func TestApp(t *testing.T) {
 		{fileName: "invalid.json", fileContent: `{
 			"key": "Illegal backslash escape: \x15"
 		  }`, result: "",
-			err: errors.New("This is an invalid JSON")},
+			err: errors.New("This is an invalid JSON\nThere is a string that contains tabs or new lines or Illegal backslash escapes")},
 		{fileName: "invalid.json", fileContent: `{
 			"Illegal backslash escape: \x15": "value"
 		  }`, result: "",
-			err: errors.New("This is an invalid JSON")},
+			err: errors.New("This is an invalid JSON\nThere is a string that contains tabs or new lines or Illegal backslash escapes")},
 		{fileName: "valid.json", fileContent: `{
 			"key1": true,
 			"key2": false,
