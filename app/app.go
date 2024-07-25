@@ -120,8 +120,8 @@ func produceAReasonForInvalidation(fileContentString string) string {
 	if isNull(fileContentString) {
 		return invalid + "\nShould be \"null\""
 	}
-	if isFalse(fileContentString) {
-		return invalid + "\nShould be \"false\""
+	if hasAFalse(fileContentString) {
+		return invalid + "\nThere is a wrongly written \"false\""
 	}
 	if isTrue(fileContentString) {
 		return invalid + "\nShould be \"true\""
@@ -205,9 +205,17 @@ func isNull(fileContentString string) bool {
 	return regex.MatchString(fileContentString)
 }
 
-func isFalse(fileContentString string) bool {
-	regex := regexp.MustCompile(`(?si)\A\s*false\s*\z`)
-	return regex.MatchString(fileContentString)
+func hasAFalse(fileContentString string) bool {
+	regex1 := regexp.MustCompile(`(?i)[^"]*([\[\{]\s*|\A\s*|\s+)false([\]\}]\s*|\s*\z|\s*,|\s+)[^"]*`)
+	falseStrings := regex1.FindAllString(fileContentString, -1)
+	regex2 := regexp.MustCompile(`[^"]*([\[\{]\s*|\A\s*|\s+)false([\]\}]\s*|\s*\z|\s*,|\s+)[^"]*`)
+	revised := make([]string, 0)
+	for _, v := range falseStrings {
+		if !regex2.MatchString(v) {
+			revised = append(revised, v)
+		}
+	}
+	return len(revised) > 0
 }
 
 func isTrue(fileContentString string) bool {

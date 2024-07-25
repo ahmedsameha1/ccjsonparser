@@ -31,7 +31,7 @@ func TestApp(t *testing.T) {
 		{fileName: "invalid.json", fileContent: "Null", result: "",
 			err: errors.New("This is an invalid JSON\nShould be \"null\"")},
 		{fileName: "invalid.json", fileContent: "False", result: "",
-			err: errors.New("This is an invalid JSON\nShould be \"false\"")},
+			err: errors.New("This is an invalid JSON\nThere is a wrongly written \"false\"")},
 		{fileName: "invalid.json", fileContent: "True", result: "",
 			err: errors.New("This is an invalid JSON\nShould be \"true\"")},
 		{fileName: "invalid.json", fileContent: "078", result: "",
