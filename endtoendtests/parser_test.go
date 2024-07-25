@@ -237,7 +237,7 @@ func TestInvalidCases(t *testing.T) {
 		{filePath: "tests/step3/invalid12.json",
 			errResult: "This is an invalid JSON\nThere is a wrongly written \"false\"\n"},
 		{filePath: "tests/step3/invalid13.json",
-			errResult: "This is an invalid JSON\nShould be \"true\"\n"},
+			errResult: "This is an invalid JSON\nThere is a wrongly written \"true\"\n"},
 		{filePath: "tests/step3/invalid14.json",
 			errResult: "This is an invalid JSON\nThere is an invalid number, there is a leading zero\n"},
 		{filePath: "tests/step3/invalid15.json",

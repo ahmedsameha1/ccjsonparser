@@ -33,7 +33,7 @@ func TestApp(t *testing.T) {
 		{fileName: "invalid.json", fileContent: "False", result: "",
 			err: errors.New("This is an invalid JSON\nThere is a wrongly written \"false\"")},
 		{fileName: "invalid.json", fileContent: "True", result: "",
-			err: errors.New("This is an invalid JSON\nShould be \"true\"")},
+			err: errors.New("This is an invalid JSON\nThere is a wrongly written \"true\"")},
 		{fileName: "invalid.json", fileContent: "078", result: "",
 			err: errors.New("This is an invalid JSON\nThere is an invalid number, there is a leading zero")},
 		{fileName: "invalid.json", fileContent: `"string1", "string 2"`, result: "",
@@ -332,7 +332,7 @@ func TestApp(t *testing.T) {
 			"key4": "value",
 			"key5": 101
 		  }`, result: "",
-			err: errors.New("This is an invalid JSON")},
+			err: errors.New("This is an invalid JSON\nThere is a wrongly written \"true\"")},
 		{fileName: "invalid.json", fileContent: `{
 			"key1": true,
 			"key2": false,

@@ -123,8 +123,8 @@ func produceAReasonForInvalidation(fileContentString string) string {
 	if hasAFalse(fileContentString) {
 		return invalid + "\nThere is a wrongly written \"false\""
 	}
-	if isTrue(fileContentString) {
-		return invalid + "\nShould be \"true\""
+	if hasATrue(fileContentString) {
+		return invalid + "\nThere is a wrongly written \"true\""
 	}
 	if isAnArrayThatSurroundedByInvalidBrackets(fileContentString) {
 		return invalid + "\nThis is an array that is surrounded by invalid \"][}{\""
@@ -218,9 +218,17 @@ func hasAFalse(fileContentString string) bool {
 	return len(revised) > 0
 }
 
-func isTrue(fileContentString string) bool {
-	regex := regexp.MustCompile(`(?si)\A\s*true\s*\z`)
-	return regex.MatchString(fileContentString)
+func hasATrue(fileContentString string) bool {
+	regex1 := regexp.MustCompile(`(?i)[^"]*([\[\{]\s*|\A\s*|\s+)true([\]\}]\s*|\s*\z|\s*,|\s+)[^"]*`)
+	falseStrings := regex1.FindAllString(fileContentString, -1)
+	regex2 := regexp.MustCompile(`[^"]*([\[\{]\s*|\A\s*|\s+)true([\]\}]\s*|\s*\z|\s*,|\s+)[^"]*`)
+	revised := make([]string, 0)
+	for _, v := range falseStrings {
+		if !regex2.MatchString(v) {
+			revised = append(revised, v)
+		}
+	}
+	return len(revised) > 0
 }
 
 func hasALeadedZeroNumber(fileContentString string) bool {
