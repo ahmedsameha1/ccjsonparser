@@ -346,6 +346,11 @@ func TestApp(t *testing.T) {
 		  }`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is an invalid number, there is a leading +")},
 		{fileName: "invalid.json", fileContent: `{
+			"key5": +0101,
+			"key4": "value"
+		  }`, result: "",
+			err: errors.New("This is an invalid JSON\nThere is an invalid number, there is a leading +")},
+		{fileName: "invalid.json", fileContent: `{
 			"key5": 0101
 		  }`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is an invalid number, there is a leading zero")},
@@ -355,6 +360,11 @@ func TestApp(t *testing.T) {
 			err: errors.New("This is an invalid JSON\nThere is an invalid number, there is a leading zero")},
 		{fileName: "invalid.json", fileContent: `{
 			"key5": 023456789012E66
+		  }`, result: "",
+			err: errors.New("This is an invalid JSON\nThere is an invalid number, there is a leading zero")},
+		{fileName: "invalid.json", fileContent: `{
+			"key5": 023456789012E66,
+			"key6": "value"
 		  }`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is an invalid number, there is a leading zero")},
 		{fileName: "invalid.json", fileContent: `{
