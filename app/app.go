@@ -111,14 +111,17 @@ func produceAReasonForInvalidation(fileContentString string) string {
 	if hasALeadedZeroNumber(fileContentString) {
 		return invalid + "\nThere is an invalid number, there is a leading zero"
 	}
+	if hasALeadedPlusNumber(fileContentString) {
+		return invalid + "\nThere is an invalid number, there is a leading +"
+	}
 	if hasAHexadecimalNumber(fileContentString) {
 		return invalid + "\nThere is an invalid number, hexadecimal numbers are not allowed"
 	}
 	if multipleValuesOutsidAnObjectOrArray(fileContentString) {
 		return invalid + "\nMultiple values outside of an object or array"
 	}
-	if isNull(fileContentString) {
-		return invalid + "\nShould be \"null\""
+	if hasANull(fileContentString) {
+		return invalid + "\nThere is a wrongly written \"null\""
 	}
 	if hasAFalse(fileContentString) {
 		return invalid + "\nThere is a wrongly written \"false\""
@@ -184,9 +187,6 @@ func produceAReasonForInvalidation(fileContentString string) string {
 	if hasAStringThatContainsNewLinesOrTabs(fileContentString) {
 		return invalid + "\nThere is a string that contains tabs or new lines or Illegal backslash escapes"
 	}
-	if hasALeadedPlusNumber(fileContentString) {
-		return invalid + "\nThere is an invalid number, there is a leading +"
-	}
 	return invalid
 }
 
@@ -222,6 +222,19 @@ func hasATrue(fileContentString string) bool {
 	regex1 := regexp.MustCompile(`(?i)[^"]*([\[\{]\s*|\A\s*|\s+)true([\]\}]\s*|\s*\z|\s*,|\s+)[^"]*`)
 	falseStrings := regex1.FindAllString(fileContentString, -1)
 	regex2 := regexp.MustCompile(`[^"]*([\[\{]\s*|\A\s*|\s+)true([\]\}]\s*|\s*\z|\s*,|\s+)[^"]*`)
+	revised := make([]string, 0)
+	for _, v := range falseStrings {
+		if !regex2.MatchString(v) {
+			revised = append(revised, v)
+		}
+	}
+	return len(revised) > 0
+}
+
+func hasANull(fileContentString string) bool {
+	regex1 := regexp.MustCompile(`(?i)[^"]*([\[\{]\s*|\A\s*|\s+)null([\]\}]\s*|\s*\z|\s*,|\s+)[^"]*`)
+	falseStrings := regex1.FindAllString(fileContentString, -1)
+	regex2 := regexp.MustCompile(`[^"]*([\[\{]\s*|\A\s*|\s+)null([\]\}]\s*|\s*\z|\s*,|\s+)[^"]*`)
 	revised := make([]string, 0)
 	for _, v := range falseStrings {
 		if !regex2.MatchString(v) {

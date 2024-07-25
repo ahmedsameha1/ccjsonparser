@@ -29,7 +29,7 @@ func TestApp(t *testing.T) {
 		{fileName: "invalid.json", fileContent: "+083", result: "",
 			err: errors.New("This is an invalid JSON\nThere is an invalid number, there is a leading +")},
 		{fileName: "invalid.json", fileContent: "Null", result: "",
-			err: errors.New("This is an invalid JSON\nShould be \"null\"")},
+			err: errors.New("This is an invalid JSON\nThere is a wrongly written \"null\"")},
 		{fileName: "invalid.json", fileContent: "False", result: "",
 			err: errors.New("This is an invalid JSON\nThere is a wrongly written \"false\"")},
 		{fileName: "invalid.json", fileContent: "True", result: "",
