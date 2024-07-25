@@ -111,9 +111,6 @@ func produceAReasonForInvalidation(fileContentString string) string {
 	if isALeadedZeroNumber(fileContentString) {
 		return invalid + "\nThere is an invalid number, there is a leading zero"
 	}
-	if isALeadedPlusNumber(fileContentString) {
-		return invalid + "\nAn invalid number, there is a leading +"
-	}
 	if hasAHexadecimalNumber(fileContentString) {
 		return invalid + "\nThere is an invalid number, hexadecimal numbers are not allowed"
 	}
@@ -187,6 +184,9 @@ func produceAReasonForInvalidation(fileContentString string) string {
 	if hasAStringThatContainsNewLinesOrTabs(fileContentString) {
 		return invalid + "\nThere is a string that contains tabs or new lines or Illegal backslash escapes"
 	}
+	if hasALeadedPlusNumber(fileContentString) {
+		return invalid + "\nThere is an invalid number, there is a leading +"
+	}
 	return invalid
 }
 
@@ -220,8 +220,8 @@ func isALeadedZeroNumber(fileContentString string) bool {
 	return regex.MatchString(fileContentString)
 }
 
-func isALeadedPlusNumber(fileContentString string) bool {
-	regex := regexp.MustCompile(`(?s)\A\s*([+-]?\d{1}\.\d+([eE][-+]?)\d+|[+-]?[1-9]\d+\.\d+([eE][-+]?)\d+|[+-]?[1-9]\d*([eE][-+]?)\d+|[+-]?\d{1}\.\d+|[+-]?[1-9]\d+\.\d+|[+-]?[1-9]\d*)\s*\z`)
+func hasALeadedPlusNumber(fileContentString string) bool {
+	regex := regexp.MustCompile(`[^"]*([\[\{]\s*|\A\s*|\s+)\+\d+[e+-.]*\d*[eE+-.]*\d*([\]\}]\s*|\s*\z|\s+)[^"]*`)
 	return regex.MatchString(fileContentString)
 }
 

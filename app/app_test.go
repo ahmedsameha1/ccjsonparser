@@ -25,7 +25,9 @@ func TestApp(t *testing.T) {
 		{fileName: "invalid.json", fileContent: "", result: "",
 			err: errors.New("This is an invalid JSON\nMUST be an object, array, number, or string, or false or null or true")},
 		{fileName: "invalid.json", fileContent: "+83", result: "",
-			err: errors.New("This is an invalid JSON\nAn invalid number, there is a leading +")},
+			err: errors.New("This is an invalid JSON\nThere is an invalid number, there is a leading +")},
+		{fileName: "invalid.json", fileContent: "+083", result: "",
+			err: errors.New("This is an invalid JSON\nThere is an invalid number, there is a leading +")},
 		{fileName: "invalid.json", fileContent: "Null", result: "",
 			err: errors.New("This is an invalid JSON\nShould be \"null\"")},
 		{fileName: "invalid.json", fileContent: "False", result: "",
@@ -339,6 +341,10 @@ func TestApp(t *testing.T) {
 			"key5": 101
 		  }`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is a string that is not surrounded correctly by (\"\")")},
+		{fileName: "invalid.json", fileContent: `{
+			"key5": +0101
+		  }`, result: "",
+			err: errors.New("This is an invalid JSON\nThere is an invalid number, there is a leading +")},
 		{fileName: "invalid.json", fileContent: `{
 			"key5": 0101
 		  }`, result: "",
