@@ -259,7 +259,7 @@ func TestInvalidCases(t *testing.T) {
 		{filePath: "tests/step3/invalid23.json",
 			errResult: "This is an invalid JSON\nThere is an invalid number, there is a leading +\n"},
 		{filePath: "tests/step3/invalid24.json",
-			errResult: "This is an invalid JSON\n"},
+			errResult: "This is an invalid JSON\nThere is an array that has an extra comma(s) between some values\n"},
 		{filePath: "tests/step3/invalid25.json",
 			errResult: "This is an invalid JSON\nThere is an object that has a missing (:)\n"},
 		{filePath: "tests/step3/invalid26.json",
