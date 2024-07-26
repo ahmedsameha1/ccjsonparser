@@ -270,6 +270,8 @@ func TestInvalidCases(t *testing.T) {
 			errResult: "This is an invalid JSON\nThere is an object that contains an extra advancing comma(s)\n"},
 		{filePath: "tests/step3/invalid29.json",
 			errResult: "This is an invalid JSON\nThere is a wrongly written \"null\"\n"},
+		{filePath: "tests/step3/invalid30.json",
+			errResult: "This is an invalid JSON\nThere is an object that has an extra comma(s) between pairs of key:value\n"},
 		{filePath: "tests/step4/invalid.json",
 			errResult: "This is an invalid JSON\nThere is a string that is not surrounded correctly by (\"\")\n"},
 		{filePath: "tests/step4/invalid2.json",

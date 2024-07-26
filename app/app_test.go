@@ -103,6 +103,8 @@ func TestApp(t *testing.T) {
 			err: errors.New("This is an invalid JSON\nThere is an object that has a missing (:)")},
 		{fileName: "invalid.json", fileContent: `{"key" "value", "key2": "value"}`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is an object that has a missing (:)")},
+		{fileName: "invalid.json", fileContent: `{"key": "value",, "key2": "value"}`, result: "",
+			err: errors.New("This is an invalid JSON\nThere is an object that has an extra comma(s) between pairs of key:value")},
 		{fileName: "invalid.json", fileContent: `{"key": "value", "key2" "value", "key3": "value"}`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is an object that has a missing (:)")},
 		{fileName: "invalid.json", fileContent: `{"key": :"value", "key2": "value", "key3": "value"}`, result: "",
