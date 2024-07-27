@@ -131,6 +131,8 @@ func TestApp(t *testing.T) {
 			err: errors.New("This is an invalid JSON\nThere is an object that has an invalid (:)s")},
 		{fileName: "invalid.json", fileContent: `["key",, "value"]`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is an array that has an extra comma(s) between some values")},
+		{fileName: "invalid.json", fileContent: `["key" "value"]`, result: "",
+			err: errors.New("This is an invalid JSON\nThere is an array that has a missing comma between two values")},
 		{fileName: "invalid.json", fileContent: `["key", "value"]]`, result: "",
 			err: errors.New("This is an invalid JSON\nThis is an array that is surrounded by invalid \"][}{\"")},
 		{fileName: "invalid.json", fileContent: `[["key", "value"]`, result: "",
