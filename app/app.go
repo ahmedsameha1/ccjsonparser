@@ -66,13 +66,13 @@ func handleInnerBrackets(innerString string, bracketsIndices [][]int) (string, e
 					}
 					OpenningBracketsIndexes = OpenningBracketsIndexes[:len(OpenningBracketsIndexes)-1]
 				} else {
-					return "", errors.New("This is an invalid JSON\nThis is an array that is surrounded by invalid \"][}{\"")
+					return "", errors.New("This is an invalid JSON\nThere are ([{)s that are fewer than (]})s")
 				}
 			}
 		}
 	}
 	if len(OpenningBracketsIndexes) > 0 {
-		return "", errors.New("This is an invalid JSON\nThis is an array that is surrounded by invalid \"][}{\"")
+		return "", errors.New("This is an invalid JSON\nThere are ([{)s that are more than (]})s")
 	}
 	return "This is a valid JSON", nil
 }

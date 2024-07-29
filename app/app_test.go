@@ -523,9 +523,9 @@ func TestApp(t *testing.T) {
 		  }`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is an object that has a comma instead of a colon")},
 		{fileName: "invalid.json", fileContent: `[[[[[[[[[[[[[[77]]]]]]]]]`, result: "",
-			err: errors.New("This is an invalid JSON\nThis is an array that is surrounded by invalid \"][}{\"")},
+			err: errors.New("This is an invalid JSON\nThere are ([{)s that are more than (]})s")},
 		{fileName: "invalid.json", fileContent: `[[[[[[[[["hi"]]]]]]]]]]]]`, result: "",
-			err: errors.New("This is an invalid JSON\nThis is an array that is surrounded by invalid \"][}{\"")},
+			err: errors.New("This is an invalid JSON\nThere are ([{)s that are fewer than (]})s")},
 		{fileName: "invalid.json", fileContent: `[
 			"key", "value",
 			"key-n": 101,
