@@ -347,7 +347,7 @@ func TestFileReadingFailure(t *testing.T) {
 	assert.Equal(t, "", out.String())
 }
 
-func TestNoFile(t *testing.T) {
+func TestNoFileNameProvided(t *testing.T) {
 	var out strings.Builder
 	var errOut strings.Builder
 	ccjsonparserCommand := exec.Command("./ccjsonparser")
@@ -356,7 +356,20 @@ func TestNoFile(t *testing.T) {
 	ccjsonparserCommand.Stdout = &out
 	err := ccjsonparserCommand.Run()
 	assert.Error(t, err)
-	assert.Contains(t, errOut.String(), "There is a missing file name")
+	assert.Equal(t, errOut.String(), "Provide a file name\n")
+	assert.Equal(t, "", out.String())
+}
+
+func TestMoreThanOneFileNameProvided(t *testing.T) {
+	var out strings.Builder
+	var errOut strings.Builder
+	ccjsonparserCommand := exec.Command("./ccjsonparser", "filename1", "filename2")
+	ccjsonparserCommand.Dir = "./.."
+	ccjsonparserCommand.Stderr = &errOut
+	ccjsonparserCommand.Stdout = &out
+	err := ccjsonparserCommand.Run()
+	assert.Error(t, err)
+	assert.Equal(t, errOut.String(), "Provide just one file name\n")
 	assert.Equal(t, "", out.String())
 }
 

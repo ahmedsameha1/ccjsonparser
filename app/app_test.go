@@ -628,6 +628,12 @@ func TestApp(t *testing.T) {
 	result, err = app.App(func(name string) ([]byte, error) {
 		return nil, nil
 	}, []string{"ccjsonparser"})
-	assert.Equal(t, err.Error(), "There is a missing file name")
+	assert.Equal(t, err.Error(), "Provide a file name")
+	assert.Equal(t, "", result)
+
+	result, err = app.App(func(name string) ([]byte, error) {
+		return nil, nil
+	}, []string{"ccjsonparser", "filename1", "filename2"})
+	assert.Equal(t, err.Error(), "Provide just one file name")
 	assert.Equal(t, "", result)
 }

@@ -26,7 +26,10 @@ var validJSONregex *regexp.Regexp = regexp.MustCompile(validJSONPattern)
 
 func App(readFile func(name string) ([]byte, error), args []string) (string, error) {
 	if len(args) < 2 {
-		return "", errors.New("There is a missing file name")
+		return "", errors.New("Provide a file name")
+	}
+	if len(args) > 2 {
+		return "", errors.New("Provide just one file name")
 	}
 	fileContentInByteArray, err := readFile(args[1])
 	if err != nil {
