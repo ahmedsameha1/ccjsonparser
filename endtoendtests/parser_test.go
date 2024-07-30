@@ -339,13 +339,24 @@ func TestFileReadingFailure(t *testing.T) {
 	var errOut strings.Builder
 	ccjsonparserCommand := exec.Command("./ccjsonparser", "tests/step4/invalid115.json")
 	ccjsonparserCommand.Dir = "./.."
-	out.Reset()
-	errOut.Reset()
 	ccjsonparserCommand.Stderr = &errOut
 	ccjsonparserCommand.Stdout = &out
 	err := ccjsonparserCommand.Run()
 	assert.Error(t, err)
 	assert.Contains(t, errOut.String(), "no such file")
+	assert.Equal(t, "", out.String())
+}
+
+func TestNoFile(t *testing.T) {
+	var out strings.Builder
+	var errOut strings.Builder
+	ccjsonparserCommand := exec.Command("./ccjsonparser")
+	ccjsonparserCommand.Dir = "./.."
+	ccjsonparserCommand.Stderr = &errOut
+	ccjsonparserCommand.Stdout = &out
+	err := ccjsonparserCommand.Run()
+	assert.Error(t, err)
+	assert.Contains(t, errOut.String(), "There is a missing file name")
 	assert.Equal(t, "", out.String())
 }
 
