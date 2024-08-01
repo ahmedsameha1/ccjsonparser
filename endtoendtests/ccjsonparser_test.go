@@ -7,7 +7,7 @@ import (
 )
 
 func TestMain(m *testing.M) {
-	buildCommand := exec.Command("go", "build", ".")
+	buildCommand := exec.Command("go", "build", "cmd/cli/ccjsonparser.go")
 	buildCommand.Dir = "./.."
 	err := buildCommand.Run()
 	if err != nil {

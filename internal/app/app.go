@@ -24,26 +24,15 @@ const (
 
 var validJSONregex *regexp.Regexp = regexp.MustCompile(validJSONPattern)
 
-func App(readFile func(name string) ([]byte, error), args []string) (string, error) {
-	if len(args) < 2 {
-		return "", errors.New("Provide a file name")
-	}
-	if len(args) > 2 {
-		return "", errors.New("Provide just one file name")
-	}
-	fileContentInByteArray, err := readFile(args[1])
-	if err != nil {
-		return "", err
-	}
-	fileContentString := string(fileContentInByteArray)
+func Validate(fileContentString string) error {
 	if !validJSONregex.MatchString(fileContentString) {
-		return "", errors.New(produceAReasonForInvalidation(fileContentString))
+		return errors.New(produceAReasonForInvalidation(fileContentString))
 	}
 	bracketsIndices := getBracketsIndices(fileContentString)
 	if len(bracketsIndices) > 2 { // Becuase we should not count start and end brackets of the json
 		return handleInnerBrackets(fileContentString, bracketsIndices)
 	}
-	return "This is a valid JSON", nil
+	return nil
 }
 
 func getBracketsIndices(stringContent string) [][]int {
@@ -55,7 +44,7 @@ func getBracketsIndices(stringContent string) [][]int {
 	return bracketsIndices
 }
 
-func handleInnerBrackets(innerString string, bracketsIndices [][]int) (string, error) {
+func handleInnerBrackets(innerString string, bracketsIndices [][]int) error {
 	OpenningBracketsIndexes := make([]int, 0)
 	for k := range bracketsIndices {
 		if k != 0 && k != len(bracketsIndices)-1 {
@@ -68,19 +57,19 @@ func handleInnerBrackets(innerString string, bracketsIndices [][]int) (string, e
 					ending := bracketsIndices[k][1]
 					innerObjectOrArray := innerString[starting:ending]
 					if !validJSONregex.MatchString(innerObjectOrArray) {
-						return "", errors.New(produceAReasonForInvalidation(innerObjectOrArray))
+						return errors.New(produceAReasonForInvalidation(innerObjectOrArray))
 					}
 					OpenningBracketsIndexes = OpenningBracketsIndexes[:len(OpenningBracketsIndexes)-1]
 				} else {
-					return "", errors.New("This is an invalid JSON\nThere are ([{)s that are fewer than (]})s")
+					return errors.New("This is an invalid JSON\nThere are ([{)s that are fewer than (]})s")
 				}
 			}
 		}
 	}
 	if len(OpenningBracketsIndexes) > 0 {
-		return "", errors.New("This is an invalid JSON\nThere are ([{)s that are more than (]})s")
+		return errors.New("This is an invalid JSON\nThere are ([{)s that are more than (]})s")
 	}
-	return "This is a valid JSON", nil
+	return nil
 }
 
 func removeBracketsThatAreInStrings(innerString string, indices [][]int) [][]int {

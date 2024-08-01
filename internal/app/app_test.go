@@ -4,54 +4,53 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/ahmedsameha1/ccjsonparser/app"
+	"github.com/ahmedsameha1/ccjsonparser/internal/app"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestApp(t *testing.T) {
 	var tests = []struct {
-		fileName    string
 		fileContent string
 		result      string
 		err         error
 	}{
-		{fileName: "valid.json", fileContent: "{}", result: "This is a valid JSON", err: nil},
-		{fileName: "valid.json", fileContent: `""`, result: "This is a valid JSON", err: nil},
-		{fileName: "valid.json", fileContent: `null`, result: "This is a valid JSON", err: nil},
-		{fileName: "valid.json", fileContent: `false`, result: "This is a valid JSON", err: nil},
-		{fileName: "valid.json", fileContent: `true`, result: "This is a valid JSON", err: nil},
-		{fileName: "valid.json", fileContent: `-74.23`, result: "This is a valid JSON", err: nil},
-		{fileName: "valid.json", fileContent: `0`, result: "This is a valid JSON", err: nil},
-		{fileName: "invalid.json", fileContent: "", result: "",
+		{fileContent: "{}", result: "This is a valid JSON", err: nil},
+		{fileContent: `""`, result: "This is a valid JSON", err: nil},
+		{fileContent: `null`, result: "This is a valid JSON", err: nil},
+		{fileContent: `false`, result: "This is a valid JSON", err: nil},
+		{fileContent: `true`, result: "This is a valid JSON", err: nil},
+		{fileContent: `-74.23`, result: "This is a valid JSON", err: nil},
+		{fileContent: `0`, result: "This is a valid JSON", err: nil},
+		{fileContent: "", result: "",
 			err: errors.New("This is an invalid JSON\nMUST be an object, array, number, or string, or false or null or true")},
-		{fileName: "invalid.json", fileContent: "+83", result: "",
+		{fileContent: "+83", result: "",
 			err: errors.New("This is an invalid JSON\nThere is an invalid number, there is a leading +")},
-		{fileName: "invalid.json", fileContent: "+083", result: "",
+		{fileContent: "+083", result: "",
 			err: errors.New("This is an invalid JSON\nThere is an invalid number, there is a leading +")},
-		{fileName: "invalid.json", fileContent: "Null", result: "",
+		{fileContent: "Null", result: "",
 			err: errors.New("This is an invalid JSON\nThere is a wrongly written \"null\"")},
-		{fileName: "invalid.json", fileContent: "False", result: "",
+		{fileContent: "False", result: "",
 			err: errors.New("This is an invalid JSON\nThere is a wrongly written \"false\"")},
-		{fileName: "invalid.json", fileContent: "True", result: "",
+		{fileContent: "True", result: "",
 			err: errors.New("This is an invalid JSON\nThere is a wrongly written \"true\"")},
-		{fileName: "invalid.json", fileContent: "078", result: "",
+		{fileContent: "078", result: "",
 			err: errors.New("This is an invalid JSON\nThere is an invalid number, there is a leading zero")},
-		{fileName: "invalid.json", fileContent: `"string1", "string 2"`, result: "",
+		{fileContent: `"string1", "string 2"`, result: "",
 			err: errors.New("This is an invalid JSON\nMultiple values outside of an object or array")},
-		{fileName: "invalid.json", fileContent: `"string1" "string 2"`, result: "",
+		{fileContent: `"string1" "string 2"`, result: "",
 			err: errors.New("This is an invalid JSON\nMultiple values outside of an object or array")},
-		{fileName: "invalid.json", fileContent: "\"string1\",\n \"string 2\"", result: "",
+		{fileContent: "\"string1\",\n \"string 2\"", result: "",
 			err: errors.New("This is an invalid JSON\nMultiple values outside of an object or array")},
-		{fileName: "invalid.json", fileContent: `"str\074b"`, result: "",
+		{fileContent: `"str\074b"`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is a string that contains tabs or new lines or Illegal backslash escapes")},
-		{fileName: "valid.json", fileContent: `{"key": "value"}`, result: "This is a valid JSON",
+		{fileContent: `{"key": "value"}`, result: "This is a valid JSON",
 			err: nil},
-		{fileName: "valid.json", fileContent: `{
+		{fileContent: `{
 			"key": "value",
 			"key2": "value"
 		  }`, result: "This is a valid JSON",
 			err: nil},
-		{fileName: "valid.json", fileContent: `{
+		{fileContent: `{
 			"key": "value",
 			"key2": "value",
 			"": "",
@@ -73,131 +72,131 @@ func TestApp(t *testing.T) {
 			"key 5 ": " value 5"
 		  }`, result: "This is a valid JSON",
 			err: nil},
-		{fileName: "invalid.json", fileContent: `["key", "value"`, result: "",
+		{fileContent: `["key", "value"`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is an unclosed array")},
-		{fileName: "invalid.json", fileContent: `["key", "value"}`, result: "",
+		{fileContent: `["key", "value"}`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is an array that is closed as an object")},
-		{fileName: "invalid.json", fileContent: `{"key": "value"]`, result: "",
+		{fileContent: `{"key": "value"]`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is an object that is closed as an array")},
-		{fileName: "invalid.json", fileContent: `["key", "value",]`, result: "",
+		{fileContent: `["key", "value",]`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is an array that contains an extra tail comma(s)")},
-		{fileName: "invalid.json", fileContent: `["key", "value",,]`, result: "",
+		{fileContent: `["key", "value",,]`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is an array that contains an extra tail comma(s)")},
-		{fileName: "invalid.json", fileContent: `[,"key", "value"]`, result: "",
+		{fileContent: `[,"key", "value"]`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is an array that contains an extra advancing comma(s)")},
-		{fileName: "invalid.json", fileContent: `[,,"key", "value"]`, result: "",
+		{fileContent: `[,,"key", "value"]`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is an array that contains an extra advancing comma(s)")},
-		{fileName: "invalid.json", fileContent: `[,"key", "value",]`, result: "",
+		{fileContent: `[,"key", "value",]`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is an array that contains an extra advancing comma(s)")},
-		{fileName: "invalid.json", fileContent: `{,"key": "value"}`, result: "",
+		{fileContent: `{,"key": "value"}`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is an object that contains an extra advancing comma(s)")},
-		{fileName: "invalid.json", fileContent: `{,,"key": "value"}`, result: "",
+		{fileContent: `{,,"key": "value"}`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is an object that contains an extra advancing comma(s)")},
-		{fileName: "invalid.json", fileContent: `{,"key": "value",}`, result: "",
+		{fileContent: `{,"key": "value",}`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is an object that contains an extra advancing comma(s)")},
-		{fileName: "invalid.json", fileContent: `{"key" "value"}`, result: "",
+		{fileContent: `{"key" "value"}`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is an object that has a missing (:)")},
-		{fileName: "invalid.json", fileContent: `{"key" "value", "key2" "value"}`, result: "",
+		{fileContent: `{"key" "value", "key2" "value"}`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is an object that has a missing (:)")},
-		{fileName: "invalid.json", fileContent: `{"key": "value", "key2" "value"}`, result: "",
+		{fileContent: `{"key": "value", "key2" "value"}`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is an object that has a missing (:)")},
-		{fileName: "invalid.json", fileContent: `{"key" "value", "key2": "value"}`, result: "",
+		{fileContent: `{"key" "value", "key2": "value"}`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is an object that has a missing (:)")},
-		{fileName: "invalid.json", fileContent: `{"key": "value",, "key2": "value"}`, result: "",
+		{fileContent: `{"key": "value",, "key2": "value"}`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is an object that has an extra comma(s) between pairs of key:value")},
-		{fileName: "invalid.json", fileContent: `{"key": "value", "key2" "value", "key3": "value"}`, result: "",
+		{fileContent: `{"key": "value", "key2" "value", "key3": "value"}`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is an object that has a missing (:)")},
-		{fileName: "invalid.json", fileContent: `{"key": :"value", "key2": "value", "key3": "value"}`, result: "",
+		{fileContent: `{"key": :"value", "key2": "value", "key3": "value"}`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is an object that has an invalid (:)s")},
-		{fileName: "invalid.json", fileContent: `{"key": :"value", "key2": "value", "key3": :"value"}`, result: "",
+		{fileContent: `{"key": :"value", "key2": "value", "key3": :"value"}`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is an object that has an invalid (:)s")},
-		{fileName: "invalid.json", fileContent: `{"key": "value", "key2": :"value", "key3": "value"}`, result: "",
+		{fileContent: `{"key": "value", "key2": :"value", "key3": "value"}`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is an object that has an invalid (:)s")},
-		{fileName: "invalid.json", fileContent: `{"key": "value", "key2": "value", "key3": :"value"}`, result: "",
+		{fileContent: `{"key": "value", "key2": "value", "key3": :"value"}`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is an object that has an invalid (:)s")},
-		{fileName: "invalid.json", fileContent: `{:"key": "value", "key2": "value", "key3" :"value"}`, result: "",
+		{fileContent: `{:"key": "value", "key2": "value", "key3" :"value"}`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is an object that has an invalid (:)s")},
-		{fileName: "invalid.json", fileContent: `{:"key": "value", "key2": "value", "key3" :"value":}`, result: "",
+		{fileContent: `{:"key": "value", "key2": "value", "key3" :"value":}`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is an object that has an invalid (:)s")},
-		{fileName: "invalid.json", fileContent: `{"key": "value", "key2": "value", "key3" :"value":}`, result: "",
+		{fileContent: `{"key": "value", "key2": "value", "key3" :"value":}`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is an object that has an invalid (:)s")},
-		{fileName: "invalid.json", fileContent: `{"key": "value", "key2": "value",: "key3" :"value"}`, result: "",
+		{fileContent: `{"key": "value", "key2": "value",: "key3" :"value"}`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is an object that has an invalid (:)s")},
-		{fileName: "invalid.json", fileContent: `{"key": "value", :"key2": "value", "key3" :"value"}`, result: "",
+		{fileContent: `{"key": "value", :"key2": "value", "key3" :"value"}`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is an object that has an invalid (:)s")},
-		{fileName: "invalid.json", fileContent: `{"key": "value":, "key2": "value",: "key3" :"value"}`, result: "",
+		{fileContent: `{"key": "value":, "key2": "value",: "key3" :"value"}`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is an object that has an invalid (:)s")},
-		{fileName: "invalid.json", fileContent: `{"key": "value":, "key2": "value", "key3" :"value"}`, result: "",
+		{fileContent: `{"key": "value":, "key2": "value", "key3" :"value"}`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is an object that has an invalid (:)s")},
-		{fileName: "invalid.json", fileContent: `["key",, "value"]`, result: "",
+		{fileContent: `["key",, "value"]`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is an array that has an extra comma(s) between some values")},
-		{fileName: "invalid.json", fileContent: `["key" "value"]`, result: "",
+		{fileContent: `["key" "value"]`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is an array that has a missing comma between two values")},
-		{fileName: "invalid.json", fileContent: `["key", "value"]]`, result: "",
+		{fileContent: `["key", "value"]]`, result: "",
 			err: errors.New("This is an invalid JSON\nThis is an array that is surrounded by invalid \"][}{\"")},
-		{fileName: "invalid.json", fileContent: `[["key", "value"]`, result: "",
+		{fileContent: `[["key", "value"]`, result: "",
 			err: errors.New("This is an invalid JSON\nThis is an array that is surrounded by invalid \"][}{\"")},
-		{fileName: "invalid.json", fileContent: `]["key", "value"]`, result: "",
+		{fileContent: `]["key", "value"]`, result: "",
 			err: errors.New("This is an invalid JSON\nThis is an array that is surrounded by invalid \"][}{\"")},
-		{fileName: "invalid.json", fileContent: `{["key", "value"]`, result: "",
+		{fileContent: `{["key", "value"]`, result: "",
 			err: errors.New("This is an invalid JSON\nThis is an array that is surrounded by invalid \"][}{\"")},
-		{fileName: "invalid.json", fileContent: `{ ["key", "value"]`, result: "",
+		{fileContent: `{ ["key", "value"]`, result: "",
 			err: errors.New("This is an invalid JSON\nThis is an array that is surrounded by invalid \"][}{\"")},
-		{fileName: "invalid.json", fileContent: `{ { ["key", "value"]`, result: "",
+		{fileContent: `{ { ["key", "value"]`, result: "",
 			err: errors.New("This is an invalid JSON\nThis is an array that is surrounded by invalid \"][}{\"")},
-		{fileName: "invalid.json", fileContent: `}["key", "value"]`, result: "",
+		{fileContent: `}["key", "value"]`, result: "",
 			err: errors.New("This is an invalid JSON\nThis is an array that is surrounded by invalid \"][}{\"")},
-		{fileName: "invalid.json", fileContent: `}["key", "value"] ]]`, result: "",
+		{fileContent: `}["key", "value"] ]]`, result: "",
 			err: errors.New("This is an invalid JSON\nThis is an array that is surrounded by invalid \"][}{\"")},
-		{fileName: "invalid.json", fileContent: `["key", "value"][`, result: "",
+		{fileContent: `["key", "value"][`, result: "",
 			err: errors.New("This is an invalid JSON\nThis is an array that is surrounded by invalid \"][}{\"")},
-		{fileName: "invalid.json", fileContent: `["key", "value"]{`, result: "",
+		{fileContent: `["key", "value"]{`, result: "",
 			err: errors.New("This is an invalid JSON\nThis is an array that is surrounded by invalid \"][}{\"")},
-		{fileName: "invalid.json", fileContent: `["key", "value"]}`, result: "",
+		{fileContent: `["key", "value"]}`, result: "",
 			err: errors.New("This is an invalid JSON\nThis is an array that is surrounded by invalid \"][}{\"")},
-		{fileName: "invalid.json", fileContent: `["key", "value"]} ]`, result: "",
+		{fileContent: `["key", "value"]} ]`, result: "",
 			err: errors.New("This is an invalid JSON\nThis is an array that is surrounded by invalid \"][}{\"")},
-		{fileName: "invalid.json", fileContent: `[["key", "value"]{`, result: "",
+		{fileContent: `[["key", "value"]{`, result: "",
 			err: errors.New("This is an invalid JSON\nThis is an array that is surrounded by invalid \"][}{\"")},
-		{fileName: "invalid.json", fileContent: `{["key", "value"]]`, result: "",
+		{fileContent: `{["key", "value"]]`, result: "",
 			err: errors.New("This is an invalid JSON\nThis is an array that is surrounded by invalid \"][}{\"")},
-		{fileName: "invalid.json", fileContent: `]["key", "value"][`, result: "",
+		{fileContent: `]["key", "value"][`, result: "",
 			err: errors.New("This is an invalid JSON\nThis is an array that is surrounded by invalid \"][}{\"")},
-		{fileName: "invalid.json", fileContent: `}["key", "value"]{`, result: "",
+		{fileContent: `}["key", "value"]{`, result: "",
 			err: errors.New("This is an invalid JSON\nThis is an array that is surrounded by invalid \"][}{\"")},
-		{fileName: "invalid.json", fileContent: `[["key", "value"]}`, result: "",
+		{fileContent: `[["key", "value"]}`, result: "",
 			err: errors.New("This is an invalid JSON\nThis is an array that is surrounded by invalid \"][}{\"")},
-		{fileName: "invalid.json", fileContent: `{["key", "value"]]`, result: "",
+		{fileContent: `{["key", "value"]]`, result: "",
 			err: errors.New("This is an invalid JSON\nThis is an array that is surrounded by invalid \"][}{\"")},
-		{fileName: "invalid.json", fileContent: `,["key", "value"]`, result: "",
+		{fileContent: `,["key", "value"]`, result: "",
 			err: errors.New("This is an invalid JSON\nThis is an array that is surrounded by invalid commas")},
-		{fileName: "invalid.json", fileContent: `["key", "value"],`, result: "",
+		{fileContent: `["key", "value"],`, result: "",
 			err: errors.New("This is an invalid JSON\nThis is an array that is surrounded by invalid commas")},
-		{fileName: "invalid.json", fileContent: `, ["key", "value"]`, result: "",
+		{fileContent: `, ["key", "value"]`, result: "",
 			err: errors.New("This is an invalid JSON\nThis is an array that is surrounded by invalid commas")},
-		{fileName: "invalid.json", fileContent: `["key", "value"] ,`, result: "",
+		{fileContent: `["key", "value"] ,`, result: "",
 			err: errors.New("This is an invalid JSON\nThis is an array that is surrounded by invalid commas")},
-		{fileName: "invalid.json", fileContent: `, ["key", "value"] ,`, result: "",
+		{fileContent: `, ["key", "value"] ,`, result: "",
 			err: errors.New("This is an invalid JSON\nThis is an array that is surrounded by invalid commas")},
-		{fileName: "invalid.json", fileContent: `,, ["key", "value"] ,,`, result: "",
+		{fileContent: `,, ["key", "value"] ,,`, result: "",
 			err: errors.New("This is an invalid JSON\nThis is an array that is surrounded by invalid commas")},
-		{fileName: "invalid.json", fileContent: `{"key": "value", ,,}`, result: "",
+		{fileContent: `{"key": "value", ,,}`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is an object that contains an extra tail comma(s)")},
-		{fileName: "invalid.json", fileContent: `{
+		{fileContent: `{
 			"key": "value",
 			key2: "value"
 		  }`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is a string that is not surrounded correctly by (\"\")")},
-		{fileName: "invalid.json", fileContent: `{"key":value","key":"value"}`, result: "",
+		{fileContent: `{"key":value","key":"value"}`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is a string that is not surrounded correctly by (\"\")")},
-		{fileName: "invalid.json", fileContent: `{"key":value","key":
+		{fileContent: `{"key":value","key":
 		"value"}`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is a string that is not surrounded correctly by (\"\")")},
-		{fileName: "invalid.json", fileContent: `{"key":"	tab	character	in	string	"}`, result: "",
+		{fileContent: `{"key":"	tab	character	in	string	"}`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is a string that contains tabs or new lines or Illegal backslash escapes")},
-		{fileName: "invalid.json", fileContent: `["tab\   character\   in\  string\  "]`, result: "",
+		{fileContent: `["tab\   character\   in\  string\  "]`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is a string that contains tabs or new lines or Illegal backslash escapes")},
-		{fileName: "invalid.json", fileContent: `{
+		{fileContent: `{
 			"key": "value",
 			"key2": "value",
 			"": "",
@@ -212,7 +211,7 @@ func TestApp(t *testing.T) {
 			""
 		  }`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is a string that contains tabs or new lines or Illegal backslash escapes")},
-		{fileName: "invalid.json", fileContent: `{
+		{fileContent: `{
 			"key": "value",
 			"key2": "value",
 			"": "",
@@ -227,7 +226,7 @@ func TestApp(t *testing.T) {
 			"
 		  }`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is a string that contains tabs or new lines or Illegal backslash escapes")},
-		{fileName: "invalid.json", fileContent: `{
+		{fileContent: `{
 			"key": "value",
 			"key2": "value",
 			"": "",
@@ -240,7 +239,7 @@ func TestApp(t *testing.T) {
 			"\"  wief"gbi": "gwoeh"
 		  }`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is a string that is not surrounded correctly by (\"\")")},
-		{fileName: "invalid.json", fileContent: `{
+		{fileContent: `{
 			"key": "value",
 			"key2": "value",
 			"": "",
@@ -253,40 +252,40 @@ func TestApp(t *testing.T) {
 			"gbi": "\"  wief"gbi"
 		  }`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is a string that is not surrounded correctly by (\"\")")},
-		{fileName: "invalid.json", fileContent: `{
+		{fileContent: `{
 			"key": "value",
 			"key 5 ": " value 5",
 		  `, result: "",
 			err: errors.New("This is an invalid JSON\nThere is an object that is closed with a comma(s)")},
-		{fileName: "invalid.json", fileContent: `{
+		{fileContent: `{
 			"key": "value",
 			"key 5 ": " value 5",
 		  ,`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is an object that is closed with a comma(s)")},
-		{fileName: "invalid.json", fileContent: `{
+		{fileContent: `{
 			"key": "value",
 			"key 5 ": " value 5"
 		  `, result: "",
 			err: errors.New("This is an invalid JSON\nThere is an unclosed object")},
-		{fileName: "invalid.json", fileContent: `[
+		{fileContent: `[
 			"key", "value",
 			"key 5 ", " value 5",
 		  `, result: "",
 			err: errors.New("This is an invalid JSON\nThere is an array that is closed with a comma(s)")},
-		{fileName: "invalid.json", fileContent: `[
+		{fileContent: `[
 			"key", "value",
 			"key 5 ", " value 5",
 		  ,`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is an array that is closed with a comma(s)")},
-		{fileName: "invalid.json", fileContent: `{
+		{fileContent: `{
 			"key": "Illegal backslash escape: \x15"
 		  }`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is a string that contains tabs or new lines or Illegal backslash escapes")},
-		{fileName: "invalid.json", fileContent: `{
+		{fileContent: `{
 			"Illegal backslash escape: \x15": "value"
 		  }`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is a string that contains tabs or new lines or Illegal backslash escapes")},
-		{fileName: "valid.json", fileContent: `{
+		{fileContent: `{
 			"key1": true,
 			"key2": false,
 			"key3": null,
@@ -300,7 +299,7 @@ func TestApp(t *testing.T) {
 			"key11": 23456789012E66
 		  }`, result: "This is a valid JSON",
 			err: nil},
-		{fileName: "valid.json", fileContent: `{
+		{fileContent: `{
 			"key1": true,
 			"key2": false,
 			"key3": null,
@@ -308,7 +307,7 @@ func TestApp(t *testing.T) {
 			"key5": 642
 		  }`, result: "This is a valid JSON",
 			err: nil},
-		{fileName: "valid.json", fileContent: `[
+		{fileContent: `[
 			0,
 			-0,
 			0e-0,
@@ -331,7 +330,7 @@ func TestApp(t *testing.T) {
 			-0e+7
 			]`, result: "This is a valid JSON",
 			err: nil},
-		{fileName: "invalid.json", fileContent: `{
+		{fileContent: `{
 			"key1": True,
 			"key2": false,
 			"key3": null,
@@ -339,7 +338,7 @@ func TestApp(t *testing.T) {
 			"key5": 101
 		  }`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is a wrongly written \"true\"")},
-		{fileName: "invalid.json", fileContent: `{
+		{fileContent: `{
 			"key1": true,
 			"key2": false,
 			"key3": nulll,
@@ -347,53 +346,53 @@ func TestApp(t *testing.T) {
 			"key5": 101
 		  }`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is a string that is not surrounded correctly by (\"\")")},
-		{fileName: "invalid.json", fileContent: `{
+		{fileContent: `{
 			"key5": +0101
 		  }`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is an invalid number, there is a leading +")},
-		{fileName: "invalid.json", fileContent: `{
+		{fileContent: `{
 			"key5": +0101,
 			"key4": "value"
 		  }`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is an invalid number, there is a leading +")},
-		{fileName: "invalid.json", fileContent: `{
+		{fileContent: `{
 			"key5": 0101
 		  }`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is an invalid number, there is a leading zero")},
-		{fileName: "invalid.json", fileContent: `{
+		{fileContent: `{
 			"key5": 01.01
 		  }`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is an invalid number, there is a leading zero")},
-		{fileName: "invalid.json", fileContent: `{
+		{fileContent: `{
 			"key5": 023456789012E66
 		  }`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is an invalid number, there is a leading zero")},
-		{fileName: "invalid.json", fileContent: `{
+		{fileContent: `{
 			"key5": 023456789012E66,
 			"key6": "value"
 		  }`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is an invalid number, there is a leading zero")},
-		{fileName: "invalid.json", fileContent: `{
+		{fileContent: `{
 			"key5": 02.3456789012E66
 		  }`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is an invalid number, there is a leading zero")},
-		{fileName: "invalid.json", fileContent: `{
+		{fileContent: `{
 			"key5": -0101
 		  }`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is an invalid number, there is a leading zero")},
-		{fileName: "invalid.json", fileContent: `{
+		{fileContent: `{
 			"key5": -01.01
 		  }`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is an invalid number, there is a leading zero")},
-		{fileName: "invalid.json", fileContent: `{
+		{fileContent: `{
 			"key5": -023456789012E66
 		  }`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is an invalid number, there is a leading zero")},
-		{fileName: "invalid.json", fileContent: `{
+		{fileContent: `{
 			"key5": -02.3456789012E66
 		  }`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is an invalid number, there is a leading zero")},
-		{fileName: "invalid.json", fileContent: `{
+		{fileContent: `{
 			"key1": true,
 			"key2": false,
 			"key3": null,
@@ -401,7 +400,7 @@ func TestApp(t *testing.T) {
 			"key5": 101true
 		  }`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is a string that is not surrounded correctly by (\"\")")},
-		{fileName: "invalid.json", fileContent: `{
+		{fileContent: `{
 			"key1": true,
 			"key2": false,
 			"key3": nulll,
@@ -409,7 +408,7 @@ func TestApp(t *testing.T) {
 			"key5": 101true
 		  }`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is a string that is not surrounded correctly by (\"\")")},
-		{fileName: "invalid.json", fileContent: `{
+		{fileContent: `{
 			"key1": true,
 			"key2": false,
 			"key3": null,
@@ -417,7 +416,7 @@ func TestApp(t *testing.T) {
 			"key5": true,
 		  }`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is an object that contains an extra tail comma(s)")},
-		{fileName: "valid.json", fileContent: `{
+		{fileContent: `{
 			"key1": true,
 			"key2": false,
 			"key3": null,
@@ -425,7 +424,7 @@ func TestApp(t *testing.T) {
 			"key5": -101
 		  }`, result: "This is a valid JSON",
 			err: nil},
-		{fileName: "valid.json", fileContent: `{
+		{fileContent: `{
 			"key1": true,
 			"key2": false,
 			"key3": null,
@@ -433,7 +432,7 @@ func TestApp(t *testing.T) {
 			"key5": -1.1
 		  }`, result: "This is a valid JSON",
 			err: nil},
-		{fileName: "valid.json", fileContent: `{
+		{fileContent: `{
 			"key1": true,
 			"key2": false,
 			"key3": null,
@@ -441,7 +440,7 @@ func TestApp(t *testing.T) {
 			"key5": -1
 		  }`, result: "This is a valid JSON",
 			err: nil},
-		{fileName: "invalid.json", fileContent: `{
+		{fileContent: `{
 			"key": "value",
 			"key-n": 101,
 			"key-o": {
@@ -450,7 +449,7 @@ func TestApp(t *testing.T) {
 			"key-l": ["list value"
 		  }`, result: "",
 			err: errors.New("This is an invalid JSON")},
-		{fileName: "invalid.json", fileContent: `{
+		{fileContent: `{
 			"key": "value",
 			"key-n": 101,
 			"key-o": {
@@ -459,7 +458,7 @@ func TestApp(t *testing.T) {
 			"key-l": ["list value"]
 		  }`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is an invalid number, hexadecimal numbers are not allowed")},
-		{fileName: "invalid.json", fileContent: `{
+		{fileContent: `{
 			"key": "value",
 			"key-n": 101,
 			"key-o": {
@@ -468,7 +467,7 @@ func TestApp(t *testing.T) {
 			"key-l": [0xc]
 		  }`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is an invalid number, hexadecimal numbers are not allowed")},
-		{fileName: "invalid.json", fileContent: `{
+		{fileContent: `{
 			"key": "value",
 			"key-n": 101,
 			"key-o": {
@@ -477,7 +476,7 @@ func TestApp(t *testing.T) {
 			"key-l": ["list value"]
 		  }`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is an invalid number, hexadecimal numbers are not allowed")},
-		{fileName: "invalid.json", fileContent: `{
+		{fileContent: `{
 			"key": "value",
 			"key-n": 101,
 			"key-o": {
@@ -486,7 +485,7 @@ func TestApp(t *testing.T) {
 			"key-l": [0Xc]
 		  }`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is an invalid number, hexadecimal numbers are not allowed")},
-		{fileName: "invalid.json", fileContent: `{
+		{fileContent: `{
 			"key": "value",
 			"key-n": 101,
 			"key-o": {
@@ -495,7 +494,7 @@ func TestApp(t *testing.T) {
 			"key-l": "list value"]
 		  }`, result: "",
 			err: errors.New("This is an invalid JSON")},
-		{fileName: "invalid.json", fileContent: `{
+		{fileContent: `{
 			"key": "value",
 			"key-n": 101,
 			"key-o": 
@@ -504,7 +503,7 @@ func TestApp(t *testing.T) {
 			"key-l": ["list value"]
 		  }`, result: "",
 			err: errors.New("This is an invalid JSON")},
-		{fileName: "invalid.json", fileContent: `{
+		{fileContent: `{
 			"key": "value",
 			"key-n": 101,
 			"key-o": {
@@ -513,7 +512,7 @@ func TestApp(t *testing.T) {
 			"key-l": ["list value"]
 		  }`, result: "",
 			err: errors.New("This is an invalid JSON")},
-		{fileName: "invalid.json", fileContent: `{
+		{fileContent: `{
 			"key": "value",
 			"key-n", 101,
 			"key-o": {
@@ -522,32 +521,32 @@ func TestApp(t *testing.T) {
 			"key-l": ["list value"]
 		  }`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is an object that has a comma instead of a colon")},
-		{fileName: "invalid.json", fileContent: `[[[[[[[[[[[[[[77]]]]]]]]]`, result: "",
+		{fileContent: `[[[[[[[[[[[[[[77]]]]]]]]]`, result: "",
 			err: errors.New("This is an invalid JSON\nThere are ([{)s that are more than (]})s")},
-		{fileName: "invalid.json", fileContent: `[[[[[[[[["hi"]]]]]]]]]]]]`, result: "",
+		{fileContent: `[[[[[[[[["hi"]]]]]]]]]]]]`, result: "",
 			err: errors.New("This is an invalid JSON\nThere are ([{)s that are fewer than (]})s")},
-		{fileName: "invalid.json", fileContent: `[
+		{fileContent: `[
 			"key", "value",
 			"key-n": 101,
 			"key-o", {},
 			"key-l", []
 		  ]`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is an array that has a (:) instead of a (,)")},
-		{fileName: "valid.json", fileContent: `{
+		{fileContent: `{
 			"key": "value",
 			"key-n": 101,
 			"key-o": {},
 			"key-l": []
 		  }`, result: "This is a valid JSON",
 			err: nil},
-		{fileName: "valid.json", fileContent: `[
+		{fileContent: `[
 			"value",
 			 101,
 			 {},
 			 []
 		  ]`, result: "This is a valid JSON",
 			err: nil},
-		{fileName: "valid.json", fileContent: `{
+		{fileContent: `{
 			"key": "value",
 			"key-n": 101,
 			"key-o": {
@@ -557,7 +556,7 @@ func TestApp(t *testing.T) {
 			"key-l": ["list value", {"key3": "value 3"}]
 		  }`, result: "This is a valid JSON",
 			err: nil},
-		{fileName: "invalid.json", fileContent: `{
+		{fileContent: `{
 			"key": "value",
 			"key-n": 101,
 			"key-o": {
@@ -568,31 +567,31 @@ func TestApp(t *testing.T) {
 			}
 		}`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is a string that is not surrounded correctly by (\"\")")},
-		{fileName: "invalid.json", fileContent: `{
+		{fileContent: `{
 			"array": [
 			  n, 1, 2, 3, 4, 5, 6, 7
 			]
 		  }`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is a string that is not surrounded correctly by (\"\")")},
-		{fileName: "invalid.json", fileContent: `[
+		{fileContent: `[
 			[
 			 n, 1, 2, 3
 		   ]
 		 ]`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is a string that is not surrounded correctly by (\"\")")},
-		{fileName: "invalid.json", fileContent: `[
+		{fileContent: `[
 			[
 			 "value1, "value2", [1, 2]
 		   ]
 		 ]`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is a string that is not surrounded correctly by (\"\")")},
-		{fileName: "invalid.json", fileContent: `{
+		{fileContent: `{
 			"key": [
 			 "value1, "value2", [1, 2]
 			 ]
 		   }`, result: "",
 			err: errors.New("This is an invalid JSON\nThere is a string that is not surrounded correctly by (\"\")")},
-		{fileName: "invalid.json", fileContent: `{
+		{fileContent: `{
 			"batter":
 			  [
 				{ "id": "1001", "type": "Regular" },
@@ -605,35 +604,9 @@ func TestApp(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		result, err := app.App(func(name string) ([]byte, error) {
-			if name != test.fileName {
-				panic("error")
-			}
-			return []byte(test.fileContent), nil
-		}, []string{"ccjsonparser", test.fileName})
-		if !assert.Equal(t, test.err, err) || !assert.Equal(t, test.result, result) {
+		err := app.Validate(test.fileContent)
+		if !assert.Equal(t, test.err, err) {
 			t.Log(test.fileContent)
 		}
 	}
-
-	result, err := app.App(func(name string) ([]byte, error) {
-		if name != "doesntexist.json" {
-			panic("error")
-		}
-		return nil, errors.New("no such file")
-	}, []string{"ccjsonparser", "doesntexist.json"})
-	assert.Contains(t, err.Error(), "no such file")
-	assert.Equal(t, "", result)
-
-	result, err = app.App(func(name string) ([]byte, error) {
-		return nil, nil
-	}, []string{"ccjsonparser"})
-	assert.Equal(t, err.Error(), "Provide a file name")
-	assert.Equal(t, "", result)
-
-	result, err = app.App(func(name string) ([]byte, error) {
-		return nil, nil
-	}, []string{"ccjsonparser", "filename1", "filename2"})
-	assert.Equal(t, err.Error(), "Provide just one file name")
-	assert.Equal(t, "", result)
 }
