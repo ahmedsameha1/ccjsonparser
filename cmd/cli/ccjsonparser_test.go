@@ -16,12 +16,12 @@ func TestReadFileContent(t *testing.T) {
 	}, []string{"ccjsonparser", "doesntexist.json"})
 	assert.Contains(t, err.Error(), "no such file")
 
-	_,err = readFileContent(func(name string) ([]byte, error) {
+	_, err = readFileContent(func(name string) ([]byte, error) {
 		return nil, nil
 	}, []string{"ccjsonparser"})
 	assert.Equal(t, err.Error(), "Provide a file name")
 
-	_,err = readFileContent(func(name string) ([]byte, error) {
+	_, err = readFileContent(func(name string) ([]byte, error) {
 		return nil, nil
 	}, []string{"ccjsonparser", "filename1", "filename2"})
 	assert.Equal(t, err.Error(), "Provide just one file name")
