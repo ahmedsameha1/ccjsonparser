@@ -76,20 +76,25 @@ func removeBracketsThatAreInStrings(innerString string, indices [][]int) [][]int
 	stringValuesRegex := regexp.MustCompile(strinG)
 	stringValuesIndices := stringValuesRegex.FindAllStringIndex(innerString, -1)
 	if len(stringValuesIndices) > 0 {
-		if indices[len(indices)-1][0] < (stringValuesIndices[0][1]-1) ||
-			indices[0][0] > (stringValuesIndices[len(stringValuesIndices)-1][1]) {
+		if indices[len(indices)-1][1] < stringValuesIndices[0][0] ||
+			indices[0][0] > stringValuesIndices[len(stringValuesIndices)-1][1] {
 			return indices
 		}
 		var revisedIndices [][]int = make([][]int, 0)
 		for _, v := range indices {
-			found := false
-			for _, v2 := range stringValuesIndices {
-				if v[0] > v2[0] && v[1] < v2[1] {
-					found = true
-					break
+			low := 0
+			high := len(stringValuesIndices) - 1
+			middle := (low + high) / 2
+			for !(v[0] > stringValuesIndices[middle][0] && v[1] < stringValuesIndices[middle][1]) &&
+				high >= low {
+				if v[0] > stringValuesIndices[middle][1] {
+					low = middle + 1
+				} else {
+					high = middle - 1
 				}
+				middle = (low + high) / 2
 			}
-			if !found {
+			if !(v[0] > stringValuesIndices[middle][0] && v[1] < stringValuesIndices[middle][1]) {
 				revisedIndices = append(revisedIndices, v)
 			}
 		}
